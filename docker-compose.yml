@@ -1,16 +1,44 @@
 version: '3.8'
 
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: datatools-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - datatools-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
   frontend:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: datatools-frontend
     ports:
-      - "5688:80"
+      - "3000:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - datatools-network
+
+volumes:
+  mysql-data:
+    driver: local
 
 networks:
   datatools-network:

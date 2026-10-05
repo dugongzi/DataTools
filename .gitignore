@@ -6,6 +6,19 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 pnpm-lock.yaml
+
+# Python
+.venv/
+venv/
+env/
+*.pyc
+__pycache__/
+
+# Python 虚拟环境
+venv/
+.venv/
+env/
+.env/
 .venv/
 # 编辑器
 .vscode/*
