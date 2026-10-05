@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: datatools-frontend
+    ports:
+      - "5688:80"
+    restart: unless-stopped
+    networks:
+      - datatools-network
+
+networks:
+  datatools-network:
+    driver: bridge

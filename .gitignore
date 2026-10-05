@@ -1,0 +1,50 @@
+# 依赖
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+pnpm-lock.yaml
+.venv/
+# 编辑器
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 构建产物
+dist/
+dist-ssr/
+*.local
+coverage/
+frontend/dist/
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 日志
+logs/
+*.log
+
+# Docker
+.dockerignore
+
+# 测试
+e2e/results/
+e2e/screenshots/
+playwright-report/
+test-results/
+
+# 临时文件
+*.tmp
+*.cache
+
+# 系统文件
+Thumbs.db
