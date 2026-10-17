@@ -1,73 +1,102 @@
-# frontend
+# Frontend 项目结构
 
-This template should help get you started developing with Vue 3 in Vite.
+## 目录结构
 
-## Recommended IDE Setup
+```
+frontend/
+├── src/
+│   ├── api/                 # API 接口层
+│   │   ├── client.ts        # Axios 实例配置
+│   │   ├── user_api.ts         # 用户 API
+│   │   └── index.ts         # 统一导出
+│   ├── assets/              # 静态资源
+│   ├── components/          # 可复用组件
+│   ├── router/              # 路由配置
+│   │   └── index.ts
+│   ├── stores/              # Pinia 状态管理
+│   │   ├── counter.ts       # 示例 store
+│   │   └── user.ts          # 用户 store
+│   ├── types/               # TypeScript 类型定义
+│   │   ├── user.ts
+│   │   └── index.ts
+│   ├── views/               # 页面组件
+│   │   ├── HomeView.vue
+│   │   ├── UsersView.vue
+│   │   └── AboutView.vue
+│   ├── App.vue
+│   └── main.ts
+├── .env.development         # 开发环境变量
+├── .env.production          # 生产环境变量
+└── package.json
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
 ```
 
-### Compile and Hot-Reload for Development
+## 技术栈
 
-```sh
-npm run dev
+- **Vue 3** - 渐进式框架
+- **TypeScript** - 类型安全
+- **Vite** - 构建工具
+- **Pinia** - 状态管理
+- **Vue Router** - 路由管理
+- **Axios** - HTTP 客户端
+
+## 架构模式
+
+### API 层
+- `api/client.ts` - 统一的 Axios 配置，包含拦截器
+- `api/user_api.ts` - 按业务模块划分的 API 接口
+
+### 状态管理
+- 使用 Pinia Composition API 风格
+- 每个 store 负责一个业务领域
+- 包含 loading 和 error 状态
+
+### 类型系统
+- 统一的类型定义在 `types/` 目录
+- DTO (Data Transfer Object) 类型用于 API 请求
+- 严格的类型检查
+
+## 环境变量
+
+开发环境 (`.env.development`):
+```
+VITE_API_BASE_URL=http://localhost:5000/api
 ```
 
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
+生产环境 (`.env.production`):
+```
+VITE_API_BASE_URL=http://localhost:3000/api
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+## 快速开始
 
-```sh
-npm run test:unit
+```bash
+# 安装依赖
+pnpm install
+
+# 开发模式
+pnpm dev
+
+# 构建生产
+pnpm build
+
+# 类型检查
+pnpm type-check
+
+# 代码格式化
+pnpm format
 ```
 
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
+## 路由
 
-```sh
-# Install browsers for the first run
-npx playwright install
+- `/` - 首页
+- `/users` - 用户列表
+- `/about` - 关于页面
 
-# When testing on CI, must build the project first
-npm run build
+## 开发规范
 
-# Runs the end-to-end tests
-npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+1. **组件命名** - 使用 PascalCase (如 `UserList.vue`)
+2. **组合式 API** - 统一使用 `<script setup>` 语法
+3. **类型安全** - 为所有 props、emits 定义类型
+4. **状态管理** - 复杂状态用 Pinia，局部状态用 ref/reactive
+5. **API 调用** - 统一在 store 中调用，组件只负责展示
