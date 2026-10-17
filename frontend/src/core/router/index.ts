@@ -1,5 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+declare module 'vue-router' {
+  interface RouteMeta {
+    title?: string
+    lead?: string
+    requiresAuth?: boolean
+  }
+}
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -9,23 +17,66 @@ const router = createRouter({
       component: () => import('@/common/views/LoginView.vue')
     },
     {
-      path: '/users',
-      name: 'users',
-      component: () => import('@/common/views/UsersView.vue')
+      path: '/',
+      component: () => import('@/common/layout/AppShell.vue'),
+      redirect: { name: 'dashboard' },
+      children: [
+        {
+          path: 'dashboard',
+          name: 'dashboard',
+          component: () => import('@/common/views/ComingSoonView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '仪表盘',
+            lead: '概览关键指标与近期动态。'
+          }
+        },
+        {
+          path: 'users',
+          name: 'users',
+          component: () => import('@/common/views/UsersView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '用户管理',
+            lead: '创建账号、分配权限并维护用户资料。'
+          }
+        },
+        {
+          path: 'datasets',
+          name: 'datasets',
+          component: () => import('@/common/views/ComingSoonView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '数据集',
+            lead: '浏览、导入与整理数据集合。'
+          }
+        },
+        {
+          path: 'settings',
+          name: 'settings',
+          component: () => import('@/common/views/ComingSoonView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '设置',
+            lead: '配置工作区、通知与集成。'
+          }
+        }
+      ]
     },
     {
-      path: '/',
-      redirect: '/login'
+      path: '/:pathMatch(.*)*',
+      redirect: { name: 'dashboard' }
     }
   ]
 })
 
 router.beforeEach((to) => {
-  if (to.path === '/users' && !localStorage.getItem('access_token')) {
-    return '/login'
+  const authenticated = Boolean(localStorage.getItem('access_token'))
+  if (to.meta.requiresAuth && !authenticated) {
+    return { name: 'login' }
   }
-  if (to.path === '/login' && localStorage.getItem('access_token')) {
-    return '/users'
+  if (to.name === 'login' && authenticated) {
+    return { name: 'dashboard' }
   }
 })
 

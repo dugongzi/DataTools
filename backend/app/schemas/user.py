@@ -7,6 +7,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         model = User
         load_instance = True
         include_fk = True
+        exclude = ('password_hash',)
 
 
 user_schema = UserSchema()

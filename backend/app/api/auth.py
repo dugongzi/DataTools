@@ -6,6 +6,7 @@ import jwt
 from flask import current_app, jsonify, request
 
 from backend.app.api import api_bp
+from backend.app.models.user import User
 
 
 def _create_access_token(username, role):
@@ -22,7 +23,7 @@ def _create_access_token(username, role):
     )
 
 
-def require_superadmin(view):
+def require_auth(view):
     @wraps(view)
     def wrapped(*args, **kwargs):
         authorization = request.headers.get('Authorization', '').split()
@@ -38,10 +39,8 @@ def require_superadmin(view):
         except jwt.InvalidTokenError:
             return jsonify({'error': 'Invalid or expired token'}), 401
 
-        if (not isinstance(claims, dict)
-                or claims.get('role') != current_app.config['ADMIN_ROLE']
-                or claims.get('sub') != current_app.config['ADMIN_USERNAME']):
-            return jsonify({'error': 'Superadmin access required'}), 403
+        if not isinstance(claims, dict) or not claims.get('sub'):
+            return jsonify({'error': 'Invalid token claims'}), 401
 
         return view(*args, **kwargs)
 
@@ -58,25 +57,31 @@ def login():
     password = data.get('password')
     admin_username = current_app.config['ADMIN_USERNAME']
     admin_password = current_app.config['ADMIN_PASSWORD']
-
-    if not admin_username or not admin_password:
-        return jsonify({'error': 'Administrator credentials are not configured'}), 503
+    admin_role = current_app.config['ADMIN_ROLE']
 
     if not isinstance(username, str) or not isinstance(password, str):
         return jsonify({'error': 'Invalid username or password'}), 401
 
-    valid_username = secrets.compare_digest(username, admin_username)
-    valid_password = secrets.compare_digest(password, admin_password)
-    if not valid_username or not valid_password:
+    authenticated_username = None
+    if (admin_username and admin_password
+            and secrets.compare_digest(username, admin_username)
+            and secrets.compare_digest(password, admin_password)):
+        authenticated_username = admin_username
+    else:
+        user = User.query.filter_by(username=username).first()
+        if user is not None and user.check_password(password):
+            authenticated_username = user.username
+
+    if authenticated_username is None:
         return jsonify({'error': 'Invalid username or password'}), 401
 
-    token = _create_access_token(admin_username, current_app.config['ADMIN_ROLE'])
+    token = _create_access_token(authenticated_username, admin_role)
     return jsonify({
         'access_token': token,
         'token_type': 'Bearer',
         'expires_in': current_app.config['ACCESS_TOKEN_MAX_AGE'],
         'user': {
-            'username': admin_username,
-            'role': current_app.config['ADMIN_ROLE'],
+            'username': authenticated_username,
+            'role': admin_role,
         },
     })

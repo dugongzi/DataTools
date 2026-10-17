@@ -27,7 +27,8 @@ async function handleSubmit() {
       password: password.value
     })
     localStorage.setItem('access_token', response.data.access_token)
-    await router.push('/users')
+    localStorage.setItem('username', username.value)
+    await router.push({ name: 'dashboard' })
   } catch {
     error.value = '登录失败，请检查用户名和密码'
   } finally {
@@ -110,11 +111,6 @@ async function handleSubmit() {
           </span>
         </button>
       </form>
-
-      <div class="auth__links">
-        <a href="#">忘记密码？</a>
-        <a href="#">创建账号</a>
-      </div>
     </main>
   </div>
 </template>
@@ -339,24 +335,6 @@ async function handleSubmit() {
   height: 20px;
   display: block;
   animation: spin 0.75s linear infinite;
-}
-
-/* ---------- 底部链接 ---------- */
-.auth__links {
-  display: flex;
-  justify-content: center;
-  gap: 1.25rem;
-  margin-top: 1.75rem;
-  font-size: 0.875rem;
-}
-
-.auth__links a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.auth__links a:hover {
-  text-decoration: underline;
 }
 
 /* ---------- 动效 ---------- */
