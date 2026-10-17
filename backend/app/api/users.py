@@ -1,5 +1,6 @@
 from flask import jsonify, request
 from backend.app.api import api_bp
+from backend.app.api.auth import require_superadmin
 from backend.app.models.user import User
 from backend.app.schemas.user import UserSchema
 from backend.app import db
@@ -9,18 +10,21 @@ users_schema = UserSchema(many=True)
 
 
 @api_bp.route('/users', methods=['GET'])
+@require_superadmin
 def get_users():
     users = User.query.all()
     return jsonify(users_schema.dump(users))
 
 
 @api_bp.route('/users/<int:user_id>', methods=['GET'])
+@require_superadmin
 def get_user(user_id):
     user = User.query.get_or_404(user_id)
     return jsonify(user_schema.dump(user))
 
 
 @api_bp.route('/users', methods=['POST'])
+@require_superadmin
 def create_user():
     data = request.get_json()
     user = User(username=data['username'], email=data['email'])
@@ -30,6 +34,7 @@ def create_user():
 
 
 @api_bp.route('/users/<int:user_id>', methods=['PUT'])
+@require_superadmin
 def update_user(user_id):
     user = User.query.get_or_404(user_id)
     data = request.get_json()
@@ -40,6 +45,7 @@ def update_user(user_id):
 
 
 @api_bp.route('/users/<int:user_id>', methods=['DELETE'])
+@require_superadmin
 def delete_user(user_id):
     user = User.query.get_or_404(user_id)
     db.session.delete(user)

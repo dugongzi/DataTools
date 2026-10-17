@@ -10,7 +10,10 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config) => {
-    // 可以在这里添加 token
+    const token = localStorage.getItem('access_token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
     return config
   },
   (error) => {
@@ -23,7 +26,9 @@ apiClient.interceptors.response.use(
     return response
   },
   (error) => {
-    // 统一错误处理
+    if (error.response?.status === 401) {
+      localStorage.removeItem('access_token')
+    }
     console.error('API Error:', error)
     return Promise.reject(error)
   }

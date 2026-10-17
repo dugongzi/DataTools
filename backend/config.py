@@ -6,7 +6,11 @@ load_dotenv(os.path.join(os.path.dirname(basedir), '.env'))
 
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME')
+    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+    ADMIN_ROLE = os.environ.get('ADMIN_ROLE', 'superadmin')
+    ACCESS_TOKEN_MAX_AGE = int(os.environ.get('ACCESS_TOKEN_MAX_AGE', '3600'))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     @staticmethod
@@ -30,7 +34,7 @@ class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = (
         f"mysql+pymysql://{os.environ.get('MYSQL_USER')}:"
         f"{os.environ.get('MYSQL_PASSWORD')}@"
-        f"mysql:{os.environ.get('MYSQL_PORT')}/"
+        "mysql:3306/"
         f"{os.environ.get('MYSQL_DATABASE')}"
     )
 

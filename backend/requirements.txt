@@ -7,3 +7,5 @@ marshmallow==3.20.1
 flask-marshmallow==0.15.0
 marshmallow-sqlalchemy==0.29.0
 cryptography
+PyJWT==2.10.1
+gunicorn==23.0.0

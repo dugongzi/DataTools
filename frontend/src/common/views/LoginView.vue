@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import apiClient from '@/core/api/client'
 
 const router = useRouter()
 
@@ -21,8 +22,11 @@ async function handleSubmit() {
   error.value = ''
 
   try {
-    // TODO: 接入登录接口
-    await new Promise((resolve) => setTimeout(resolve, 800))
+    const response = await apiClient.post('/auth/login', {
+      username: username.value,
+      password: password.value
+    })
+    localStorage.setItem('access_token', response.data.access_token)
     await router.push('/users')
   } catch {
     error.value = '登录失败，请检查用户名和密码'
