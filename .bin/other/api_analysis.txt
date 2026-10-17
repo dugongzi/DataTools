@@ -1,0 +1,150 @@
+找到 3 个核心API
+
+================================================================================
+API类型: note_detail_page
+================================================================================
+
+【请求信息】
+URL: https://www.douyin.com/note/7594469617029339131
+Method: GET
+Status: 200
+
+【关键请求头】
+  user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Sa...
+
+【响应内容（前500字符）】
+PCFET0NUWVBFIGh0bWw+PGh0bWwgbmV3LXRoZW1lLWNvbG9yPSJ0cnVlIiBuZXctdGhlbWUtc2lkZT0idHJ1ZSIgZGFyaz0idHJ1ZSI+PGhlYWQ+PGxpbmsgcmVsPSJkbnMtcHJlZmV0Y2giIGhyZWY9Ii8vdjMtd2ViLmRvdXlpbnZvZC5jb20iLz48bGluayByZWw9ImRucy1wcmVmZXRjaCIgaHJlZj0iLy92MjYtd2ViLmRvdXlpbnZvZC5jb20iLz48bGluayByZWw9ImRucy1wcmVmZXRjaCIgaHJlZj0iLy9wLXBjLXdlYm9mZi5ieXRlaW1nLmNvbSIvPjxsaW5rIHJlbD0iZG5zLXByZWZldGNoIiBocmVmPSIvL2xmLWRvdXlpbi1wYy13ZWIuZG91eWluc3RhdGljLmNvbSIvPjxsaW5rIHJlbD0iZG5zLXByZWZldGNoIiBocmVmPSIvL3YxMS13ZWItcHJpbWUuZG91
+
+
+
+================================================================================
+API类型: author_posts
+================================================================================
+
+【请求信息】
+URL: https://www.douyin.com/aweme/v1/web/aweme/post/?device_platform=webapp&aid=6383&channel=channel_pc_web&sec_user_id=MS4wLjABAAAAEacbLtfUID2ysakoZ64PSrKwTou1y-NLFf9wB6zcQ9rmzPV6RHcxWoaqY-gZYcf9&max_cursor=1768225254000&locate_query=false&show_live_replay_strategy=1&need_time_list=0&time_list_query=0&whale_cut_token=&cut_version=1&count=18&publish_video_strategy_type=2&from_user_page=0&update_version_code=170400&pc_client_type=1&pc_libra_divert=Windows&support_h265=1&support_dash=1&cpu_core_num=22&version_code=290100&version_name=29.1.0&cookie_enabled=true&screen_width=1440&screen_height=811&browser_language=zh-CN&browser_platform=Win32&browser_name=Edge&browser_version=150.0.0.0&browser_online=true&engine_name=Blink&engine_version=150.0.0.0&os_name=Windows&os_version=10&device_memory=32&platform=PC&downlink=10&effective_type=4g&round_trip_time=250&webid=7695013401442436650&uifid=9909fc4602c90e11cbb1ca2fa8411678673d4386b8d7ca05c125f9fb0905826b1f1b48d8bb3829bb19bac7b37bcf8d0acf7528c809caa9d83e8cfc8e925da610f4972e0a6dd4018c1e7968552907734adba4971ba46f2b9b62fbafcf8e87af8a4ba5873b691f086c9e4a021c70077d93ae3849c33df84dd7c8ae513948f7000ff99ba445ba035405cc2f32dbb71d62b75a01f00c0e10df4515b505cd4292cc2b&msToken=AyfnHq5YJTBGsNmdVee9U21WSmV2HW70Zv9UGq6dmc1ynFYA2XWNOM54fTz5WC7DWup2Jfz1cqQd5XrKaPxsbVSZTCtVmw1HWZo600Bxlx3_h8N9ip54KZuV8ZdT78YCdtoDOeAuKFAojCgkaF7nbE3wY8BsT1CKwHtV5d_UM1cs6mXXA-xHM_HZ2Q%3D%3D&a_bogus=O70nkz6EmZmbPVMG8OrT9nclbunlrTSyTPT2bP3PHPK-LH0TduNIsrccJoz24TQwmRBkwCV7XfMlbddcqsXzpo9pumpvuwsfOUd5IgXo01rZT-vhVpmoCJbEoJ-e0SsY0O2IiPEX1UUrIoO3D1xQACP9t%2FeoQ%2FRMzNqUdpUU7x2BgGJYnoVESmR%3D&verifyFp=verify_mvcb4joq_Zvh1RZhS_zdAP_4zH0_81GM_tam91NlP7KeS&fp=verify_mvcb4joq_Zvh1RZhS_zdAP_4zH0_81GM_tam91NlP7KeS&timestamp=1792253099&x-secsdk-web-signature=b048838521b25a7dccbfe421ecb2b67d
+Method: GET
+Status: 200
+
+【关键请求头】
+  referer: https://www.douyin.com/note/7594469617029339131
+  user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Sa...
+
+【URL参数】
+  device_platform=webapp
+  aid=6383
+  channel=channel_pc_web
+  sec_user_id=MS4wLjABAAAAEacbLtfUID2ysakoZ64PSrKwTou1y-NLFf9wB6zcQ9rmzPV6RHcxWoaqY-gZYcf9
+  max_cursor=1768225254000
+  locate_query=false
+  show_live_replay_strategy=1
+  need_time_list=0
+  time_list_query=0
+  whale_cut_token=
+  cut_version=1
+  count=18
+  publish_video_strategy_type=2
+  from_user_page=0
+  update_version_code=170400
+  ... 还有 32 个参数
+
+【响应结构】
+{
+  "status_code": 0,
+  "min_cursor": 1768225253000,
+  "max_cursor": 1748605200000,
+  "has_more": 1,
+  "aweme_list": [
+    {
+      "aweme_id": "7594469617029339131",
+      "desc": "全球十大AI模型。中国占了5席，美国占了四席，数量上我们超越了美国#科普冷知识 #AI大模型 #谷歌#ChatGPT#DeepSeek",
+      "create_time": 1768225253,
+      "author": {
+        "uid": "2664837986392663",
+        "user_permissions": null,
+        "nickname": "A港美风口",
+        "link_item_list": null,
+        "not_seen_item_id_list_v2": null,
+        "avatar_thumb": {
+          "uri": "100x100/aweme-avatar/tos-cn-avt-0015_aa309d968a5fd6365ee9b6a0d28ce438",
+          "url_list": [
+            "https://p3-pc.douyinpic.com/aweme/100x100/aweme-avatar/tos-cn-avt-0015_aa309d968a5fd6365ee9b6a0d28ce438.jpeg?from=327834062"
+          ],
+          "width": 720,
+          "height": 720
+        },
+        "profile_component_disabled": null,
+        "contrail_list": null,
+        "follow_status": 0,
+        "avatar_schema_list": null,
+        "webcast_preview_labels": null,
+        "profile_mob_params": null,
+        "custom_verify": "",
+        "risk_notice_text": "",
+        "interest_tags": null,
+        "signature_extra": null,
+        "story_interactive": 4,
+        "display_info": null,
+        "share_info": {
+          "share_url": "",
+          "share_weibo_desc": "",
+          "share_desc": "",
+          "share_title": "",
+          "share_qrcode_url": {
+            "uri": "30f5d0007d5107a60e280",
+            "url_list": [
+              "https://p3-pc-sign.douyinpic.com/obj/30f5d0007d5107a60e280?lk3s=138a59ce&x-expires=1792274400&x-signature=bPThmJ%2BBDvnmmpdWq8LkVwk00w0%3D&from=327834062"
+            ],
+            "width": 720,
+            "height": 720
+          },
+          "share_title_myself": "",
+          "share_title_other": "",
+          "share_desc_info": ""
+        },
+        "ban_user_functions": null,
+        "follower_list_secondary_information_struct": null,
+        "user_tags": null,
+        "enterprise_verify_reason": "",
+   
+
+... (内容已截断)
+
+
+
+================================================================================
+API类型: related_videos
+================================================================================
+
+【请求信息】
+URL: https://www.douyin.com/aweme/v1/web/aweme/related/?device_platform=webapp&aid=6383&channel=channel_pc_web&aweme_id=7594469617029339131&count=20&filterGids=7594469617029339131&awemePcRecRawData=%7B%22is_client%22%3Afalse%7D&sub_channel_id=3&Seo-Flag=0&refresh_index=1&update_version_code=170400&pc_client_type=1&pc_libra_divert=Windows&support_h265=1&support_dash=1&cpu_core_num=22&version_code=170400&version_name=17.4.0&cookie_enabled=true&screen_width=1440&screen_height=811&browser_language=zh-CN&browser_platform=Win32&browser_name=Edge&browser_version=150.0.0.0&browser_online=true&engine_name=Blink&engine_version=150.0.0.0&os_name=Windows&os_version=10&device_memory=32&platform=PC&downlink=10&effective_type=4g&round_trip_time=250&webid=7695013401442436650&uifid=9909fc4602c90e11cbb1ca2fa8411678673d4386b8d7ca05c125f9fb0905826b1f1b48d8bb3829bb19bac7b37bcf8d0acf7528c809caa9d83e8cfc8e925da610f4972e0a6dd4018c1e7968552907734adba4971ba46f2b9b62fbafcf8e87af8a4ba5873b691f086c9e4a021c70077d93ae3849c33df84dd7c8ae513948f7000ff99ba445ba035405cc2f32dbb71d62b75a01f00c0e10df4515b505cd4292cc2b&msToken=AyfnHq5YJTBGsNmdVee9U21WSmV2HW70Zv9UGq6dmc1ynFYA2XWNOM54fTz5WC7DWup2Jfz1cqQd5XrKaPxsbVSZTCtVmw1HWZo600Bxlx3_h8N9ip54KZuV8ZdT78YCdtoDOeAuKFAojCgkaF7nbE3wY8BsT1CKwHtV5d_UM1cs6mXXA-xHM_HZ2Q%3D%3D&a_bogus=QX4RhqtLD2QjedMGucrs9rHlb8DlNPWyX-T%2FWnxPSOOuy1eYdWNnsaebnoz2sTQwuWBzwH1H6f0AbddcZ4X0pqHpKmpvSwvWKsdAIhfog1rZTaihn3moCJtEzJ4e0CTYsC%2FIiOw1IUlnIgQ3g1OxA9Fyt%2FeoQuRMzHqXdp4UtxgBgGiY32QmSuE%3D&verifyFp=verify_mvcb4joq_Zvh1RZhS_zdAP_4zH0_81GM_tam91NlP7KeS&fp=verify_mvcb4joq_Zvh1RZhS_zdAP_4zH0_81GM_tam91NlP7KeS
+Method: GET
+Status: 200
+
+【关键请求头】
+  referer: https://www.douyin.com/note/7594469617029339131
+  user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Sa...
+
+【URL参数】
+  device_platform=webapp
+  aid=6383
+  channel=channel_pc_web
+  aweme_id=7594469617029339131
+  count=20
+  filterGids=7594469617029339131
+  awemePcRecRawData=%7B%22is_client%22%3Afalse%7D
+  sub_channel_id=3
+  Seo-Flag=0
+  refresh_index=1
+  update_version_code=170400
+  pc_client_type=1
+  pc_libra_divert=Windows
+  support_h265=1
+  support_dash=1
+  ... 还有 26 个参数
+
+【响应内容（前500字符）】
+eyJhd2VtZV9saXN0IjpbeyJhZF9jYW5kaWRhdGVzIjpudWxsLCJhaV9mb2xsb3dfaW1hZ2VzIjpudWxsLCJhbmNob3JzIjpudWxsLCJhdXRoZW50aWNhdGlvbl90b2tlbiI6Ik1TNHdMakFBQUFBQXh2NC1KQ1FwTUQ5RmRuZTc0ZTVtQVhEZWMzb3ZGNzNNZG1ELW1uNkdOc2ZtbERoREw5U2FRMGtBMmxCc19NSHZzZ2JxLUF5MDVZNmk4Zi1OOTJKN2FVbWZlRlpWV3A1T2lteUp5UVFJNUUwNDRqV1J2dUdNY3dVNlRKN25BaWthRlpVNUJJVV9PYXhScXdOVHhpNUhuTlpaekpFWFdJQ1lpNmtqcEw1cm1xZ0R2MklPdl9wZUJSdTN5MGZGUFJ4dXpwZVdWelktSFE1TWh4YURFaVJwUEdFel9xV1QtaGJVOVFYMGZzYndERjIyRXVwdUdGOXZnQkFrbWw3S3FmampJWHFDR3F2
+
+
+

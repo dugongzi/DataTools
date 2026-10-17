@@ -1,0 +1,793 @@
+{
+  "aweme_id": "7594469617029339131",
+  "desc": "全球十大AI模型。中国占了5席，美国占了四席，数量上我们超越了美国#科普冷知识 #AI大模型 #谷歌#ChatGPT#DeepSeek",
+  "create_time": 1768225253,
+  "author": {
+    "uid": "2664837986392663",
+    "user_permissions": null,
+    "nickname": "A港美风口",
+    "link_item_list": null,
+    "not_seen_item_id_list_v2": null,
+    "avatar_thumb": {
+      "uri": "100x100/aweme-avatar/tos-cn-avt-0015_aa309d968a5fd6365ee9b6a0d28ce438",
+      "url_list": [
+        "https://p3-pc.douyinpic.com/aweme/100x100/aweme-avatar/tos-cn-avt-0015_aa309d968a5fd6365ee9b6a0d28ce438.jpeg?from=327834062"
+      ],
+      "width": 720,
+      "height": 720
+    },
+    "profile_component_disabled": null,
+    "contrail_list": null,
+    "follow_status": 0,
+    "avatar_schema_list": null,
+    "webcast_preview_labels": null,
+    "profile_mob_params": null,
+    "custom_verify": "",
+    "risk_notice_text": "",
+    "interest_tags": null,
+    "signature_extra": null,
+    "story_interactive": 4,
+    "display_info": null,
+    "share_info": {
+      "share_url": "",
+      "share_weibo_desc": "",
+      "share_desc": "",
+      "share_title": "",
+      "share_qrcode_url": {
+        "uri": "30f5d0007d5107a60e280",
+        "url_list": [
+          "https://p3-pc-sign.douyinpic.com/obj/30f5d0007d5107a60e280?lk3s=138a59ce&x-expires=1792274400&x-signature=bPThmJ%2BBDvnmmpdWq8LkVwk00w0%3D&from=327834062"
+        ],
+        "width": 720,
+        "height": 720
+      },
+      "share_title_myself": "",
+      "share_title_other": "",
+      "share_desc_info": ""
+    },
+    "ban_user_functions": null,
+    "follower_list_secondary_information_struct": null,
+    "user_tags": null,
+    "enterprise_verify_reason": "",
+    "is_ad_fake": false,
+    "profile_signature_components": null,
+    "cf_list": null,
+    "card_sort_priority": null,
+    "story_ttl": 7,
+    "im_role_ids": null,
+    "familiar_visitor_user": null,
+    "offline_info_list": null,
+    "prevent_download": false,
+    "batch_unfollow_relation_desc": null,
+    "card_entries": null,
+    "special_people_labels": null,
+    "follower_status": 0,
+    "account_cert_info": "{}",
+    "batch_unfollow_contain_tabs": null,
+    "creator_tag_list": null,
+    "cover_url": [
+      {
+        "uri": "c8510002be9a3a61aad2",
+        "url_list": [
+          "https://p3-pc-sign.douyinpic.com/obj/c8510002be9a3a61aad2?lk3s=138a59ce&x-expires=1793462400&x-signature=dFyL4%2BWaFx5ouhEzS8FvJbxAb3k%3D&from=327834062"
+        ],
+        "width": 720,
+        "height": 720
+      }
+    ],
+    "endorsement_info_list": null,
+    "text_extra": null,
+    "verification_permission_ids": null,
+    "not_seen_item_id_list": null,
+    "data_label_list": null,
+    "card_entries_not_display": null,
+    "hide_self_recommend_interest": 0,
+    "private_relation_list": null,
+    "hide_others_recommend_interest": 0,
+    "story25_comment": 1,
+    "personal_tag_list": null,
+    "identity_labels": null,
+    "sec_uid": "MS4wLjABAAAAEacbLtfUID2ysakoZ64PSrKwTou1y-NLFf9wB6zcQ9rmzPV6RHcxWoaqY-gZYcf9",
+    "need_points": null,
+    "homepage_bottom_toast": null,
+    "can_set_geofencing": null,
+    "white_cover_url": null
+  },
+  "music": {
+    "id": 7594019382658173705,
+    "id_str": "7594019382658173705",
+    "title": "@九州服装创作的原声",
+    "author": "九州服装",
+    "album": "",
+    "cover_hd": {
+      "uri": "1080x1080/aweme-avatar/tos-cn-i-hf2m9xxmck_e387a03578304efd850a2ae7a4b5566d",
+      "url_list": [
+        "https://p3-pc.douyinpic.com/aweme/1080x1080/aweme-avatar/tos-cn-i-hf2m9xxmck_e387a03578304efd850a2ae7a4b5566d.jpeg?from=327834062"
+      ],
+      "width": 720,
+      "height": 720
+    },
+    "cover_large": {
+      "uri": "1080x1080/aweme-avatar/tos-cn-i-hf2m9xxmck_e387a03578304efd850a2ae7a4b5566d",
+      "url_list": [
+        "https://p3-pc.douyinpic.com/aweme/1080x1080/aweme-avatar/tos-cn-i-hf2m9xxmck_e387a03578304efd850a2ae7a4b5566d.jpeg?from=327834062"
+      ],
+      "width": 720,
+      "height": 720
+    },
+    "cover_medium": {
+      "uri": "720x720/aweme-avatar/tos-cn-i-hf2m9xxmck_e387a03578304efd850a2ae7a4b5566d",
+      "url_list": [
+        "https://p3-pc.douyinpic.com/aweme/720x720/aweme-avatar/tos-cn-i-hf2m9xxmck_e387a03578304efd850a2ae7a4b5566d.jpeg?from=327834062"
+      ],
+      "width": 720,
+      "height": 720
+    },
+    "cover_thumb": {
+      "uri": "100x100/aweme-avatar/tos-cn-i-hf2m9xxmck_e387a03578304efd850a2ae7a4b5566d",
+      "url_list": [
+        "https://p3-pc.douyinpic.com/aweme/100x100/aweme-avatar/tos-cn-i-hf2m9xxmck_e387a03578304efd850a2ae7a4b5566d.jpeg?from=327834062"
+      ],
+      "width": 720,
+      "height": 720
+    },
+    "play_url": {
+      "uri": "https://sf11-cdn-tos.douyinstatic.com/obj/ies-music/7594019418909297434.mp3",
+      "url_list": [
+        "https://sf11-cdn-tos.douyinstatic.com/obj/ies-music/7594019418909297434.mp3",
+        "https://sf6-cdn-tos.douyinstatic.com/obj/ies-music/7594019418909297434.mp3"
+      ],
+      "width": 720,
+      "height": 720,
+      "url_key": "7594019382658173705"
+    },
+    "schema_url": "",
+    "source_platform": 23,
+    "start_time": 0,
+    "end_time": 0,
+    "duration": 54,
+    "extra": "{\"aed_music_score\":0.71,\"aed_singing_score\":0.25,\"aggregate_exempt_conf\":[],\"aigc_clip\":false,\"beats\":{\"audio_effect_onset\":\"https://sf11-cdn-tos.douyinstatic.com/obj/ies-music/strong_beat/audio_effect_onset/model_spec_tnt/7594019382658173705/1772261062\",\"beats_tracker\":\"https://sf6-cdn-tos.douyinstatic.com/obj/ies-music/strong_beat/beats_tracker/model_spec_tnt/7594019382658173705/1772261064\",\"energy_trace\":\"https://sf6-cdn-tos.douyinstatic.com/obj/ies-music/strong_beat/energy_trace/model_spec_tnt/7594019382658173705/1772261062\",\"merged_beats\":\"https://sf6-cdn-tos.douyinstatic.com/obj/ies-music/strong_beat/merged_beats/model_spec_tnt/7594019382658173705/1772261064\"},\"cover_colors\":null,\"douyin_beats_info\":{},\"dsp_switch\":0,\"extract_item_id\":7594019415570728875,\"has_edited\":0,\"hotsoon_review_time\":-1,\"image_beats_url\":\"https://sf6-cdn-tos.douyinstatic.com/obj/ies-music/strong_beat/beats_tracker/model_spec_tnt/7594019382658173705/1772261064\",\"is_aed_music\":1,\"is_red\":0,\"is_subsidy_exp\":false,\"long_pic_video_usable\":true,\"music_label_id\":null,\"music_tagging\":{\"AEDs\":[\"non_vocal\"],\"Genres\":[\"DJ\",\"Others\"],\"Instruments\":null,\"Languages\":[\"non_vocal\"],\"Moods\":[\"Dynamic\"],\"SingingVersions\":null,\"Themes\":[\"Dance\",\"Low\"]},\"review_unshelve_reason\":0,\"reviewed\":0,\"schedule_search_time\":0,\"uniqa_speech_score\":0.05,\"with_aed_model\":1}",
+    "user_count": 0,
+    "position": null,
+    "collect_stat": 0,
+    "status": 1,
+    "offline_desc": "",
+    "owner_id": "43602479162415",
+    "owner_nickname": "九州服装",
+    "is_original": false,
+    "mid": "7594019382658173705",
+    "binded_challenge_id": 0,
+    "redirect": false,
+    "is_restricted": false,
+    "author_deleted": false,
+    "is_del_video": false,
+    "is_video_self_see": false,
+    "owner_handle": "jiuzhoushang23",
+    "author_position": null,
+    "prevent_download": false,
+    "strong_beat_url": {
+      "uri": "https://sf11-cdn-tos.douyinstatic.com/obj/ies-music/pattern/1f01fe23c069f9e2a5c8a15b28242a77.json",
+      "url_list": [
+        "https://sf11-cdn-tos.douyinstatic.com/obj/ies-music/pattern/1f01fe23c069f9e2a5c8a15b28242a77.json",
+        "https://sf6-cdn-tos.douyinstatic.com/obj/ies-music/pattern/1f01fe23c069f9e2a5c8a15b28242a77.json"
+      ],
+      "width": 720,
+      "height": 720
+    },
+    "unshelve_countries": null,
+    "prevent_item_download_status": 0,
+    "external_song_info": [],
+    "sec_uid": "MS4wLjABAAAAUnzNKVfXZ0P1v1Mv0Ou7Ge1J_PZMkdnM6hQrphl74iA",
+    "avatar_thumb": {
+      "uri": "100x100/aweme-avatar/tos-cn-i-hf2m9xxmck_e387a03578304efd850a2ae7a4b5566d",
+      "url_list": [
+        "https://p3-pc.douyinpic.com/aweme/100x100/aweme-avatar/tos-cn-i-hf2m9xxmck_e387a03578304efd850a2ae7a4b5566d.jpeg?from=327834062"
+      ],
+      "width": 720,
+      "height": 720
+    },
+    "avatar_medium": {
+      "uri": "720x720/aweme-avatar/tos-cn-i-hf2m9xxmck_e387a03578304efd850a2ae7a4b5566d",
+      "url_list": [
+        "https://p3-pc.douyinpic.com/aweme/720x720/aweme-avatar/tos-cn-i-hf2m9xxmck_e387a03578304efd850a2ae7a4b5566d.jpeg?from=327834062"
+      ],
+      "width": 720,
+      "height": 720
+    },
+    "avatar_large": {
+      "uri": "1080x1080/aweme-avatar/tos-cn-i-hf2m9xxmck_e387a03578304efd850a2ae7a4b5566d",
+      "url_list": [
+        "https://p3-pc.douyinpic.com/aweme/1080x1080/aweme-avatar/tos-cn-i-hf2m9xxmck_e387a03578304efd850a2ae7a4b5566d.jpeg?from=327834062"
+      ],
+      "width": 720,
+      "height": 720
+    },
+    "preview_start_time": 0,
+    "preview_end_time": 0,
+    "is_commerce_music": false,
+    "is_original_sound": true,
+    "audition_duration": 54,
+    "shoot_duration": 54,
+    "reason_type": 0,
+    "artists": [],
+    "lyric_short_position": null,
+    "mute_share": false,
+    "tag_list": null,
+    "dmv_auto_show": false,
+    "is_pgc": false,
+    "is_matched_metadata": false,
+    "is_audio_url_with_cookie": false,
+    "music_chart_ranks": null,
+    "can_background_play": true,
+    "music_status": 1,
+    "video_duration": 54,
+    "pgc_music_type": 2,
+    "author_status": 1,
+    "search_impr": {
+      "entity_id": "7594019382658173705"
+    },
+    "artist_user_infos": null,
+    "dsp_status": 10,
+    "musician_user_infos": null,
+    "music_image_beats": {
+      "music_image_beats_url": {
+        "uri": "ies-music/strong_beat/beats_tracker/model_spec_tnt/7594019382658173705/1772261064",
+        "url_list": [
+          "https://sf6-cdn-tos.douyinstatic.com/obj/ies-music/strong_beat/beats_tracker/model_spec_tnt/7594019382658173705/1772261064"
+        ],
+        "width": 720,
+        "height": 720
+      }
+    },
+    "music_collect_count": 0,
+    "music_cover_atmosphere_color_value": "",
+    "show_origin_clip": false,
+    "talent_hashtag_name_list": null
+  },
+  "follow_shoot_property": {
+    "recommended_camera_mode": "photo"
+  },
+  "video": {
+    "play_addr": {
+      "uri": "https://sf11-cdn-tos.douyinstatic.com/obj/ies-music/7594019418909297434.mp3",
+      "url_list": [
+        "https://sf11-cdn-tos.douyinstatic.com/obj/ies-music/7594019418909297434.mp3",
+        "https://sf6-cdn-tos.douyinstatic.com/obj/ies-music/7594019418909297434.mp3"
+      ],
+      "width": 720,
+      "height": 720,
+      "url_key": "7594019382658173705"
+    },
+    "cover": {
+      "uri": "tos-cn-i-0813c000-ce/oMdJlNwZfAIURmDCAD9pOaC8eEEoFAAxWPAQRh",
+      "url_list": [
+        "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c000-ce/oMdJlNwZfAIURmDCAD9pOaC8eEEoFAAxWPAQRh~noop.jpeg?lk3s=138a59ce&x-expires=1793462400&x-signature=OYQd6roWCgTm2K0Mh9uafruileU%3D&from=327834062&s=PackSourceEnum_PUBLISH&se=false&biz_tag=pcweb_cover&l=20261018000458F08BF3C93089743A0762"
+      ],
+      "width": 720,
+      "height": 720
+    },
+    "height": 2704,
+    "width": 1536,
+    "origin_cover": {
+      "uri": "tos-cn-i-0813c000-ce/oMdJlNwZfAIURmDCAD9pOaC8eEEoFAAxWPAQRh",
+      "url_list": [
+        "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c000-ce/oMdJlNwZfAIURmDCAD9pOaC8eEEoFAAxWPAQRh~noop.jpeg?lk3s=138a59ce&x-expires=1793462400&x-signature=OYQd6roWCgTm2K0Mh9uafruileU%3D&from=327834062&s=PackSourceEnum_PUBLISH&se=false&biz_tag=pcweb_cover&l=20261018000458F08BF3C93089743A0762"
+      ],
+      "width": 720,
+      "height": 720
+    },
+    "ratio": "default",
+    "audio": {
+      "original_sound_infos": null
+    },
+    "bit_rate": null,
+    "duration": 0,
+    "bit_rate_audio": null,
+    "meta": "{}",
+    "big_thumbs": null
+  },
+  "share_url": "https://www.iesdouyin.com/share/video/7594469617029339131/?region=HK&mid=7594019382658173705&u_code=16dm52g47&did=MS4wLjABAAAA_2y2x-HRwUb5AAp8mcJrCNqg1V7r7JXOvXzn5XYV_XnxjCL_t4vyFVV9NntDFkEZ&iid=MS4wLjABAAAANwkJuWIRFOzg5uCpDRpMj4OX-QryoDgn-yYlXQnRwQQ&with_sec_did=1&video_share_track_ver=&titleType=title&schema_type=37&share_sign=GmbCMH5TCjV9tX8GMUDNIRmvWpaEbgiZwHodUz.pfSM-&share_version=290100&ts=1792253099&from_aid=6383&from_ssr=1&share_track_info=%7B%22link_description_type%22%3A%22%22%7D",
+  "user_digged": 0,
+  "statistics": {
+    "recommend_count": 7,
+    "comment_count": 258,
+    "digg_count": 819,
+    "admire_count": 0,
+    "play_count": 0,
+    "share_count": 85,
+    "collect_count": 242
+  },
+  "status": {
+    "not_allow_soft_del_reason": "ab",
+    "is_delete": false,
+    "allow_share": true,
+    "review_result": {
+      "review_status": 0
+    },
+    "allow_friend_recommend_guide": true,
+    "part_see": 0,
+    "private_status": 0,
+    "listen_video_status": 2,
+    "in_reviewing": false,
+    "allow_self_recommend_to_friend": true,
+    "allow_friend_recommend": false,
+    "is_prohibited": false,
+    "enable_soft_delete": 0
+  },
+  "entertainment_video_paid_way": {
+    "paid_ways": [],
+    "paid_type": 0,
+    "enable_use_new_ent_data": false
+  },
+  "text_extra": [
+    {
+      "start": 0,
+      "end": 8,
+      "type": 7,
+      "caption_start": 0,
+      "caption_end": 0
+    },
+    {
+      "start": 8,
+      "end": 9,
+      "type": 8,
+      "caption_start": 0,
+      "caption_end": 0
+    },
+    {
+      "start": 33,
+      "end": 39,
+      "type": 1,
+      "hashtag_name": "科普冷知识",
+      "hashtag_id": "1600788238934062",
+      "is_commerce": false,
+      "caption_start": 0,
+      "caption_end": 0
+    },
+    {
+      "start": 40,
+      "end": 46,
+      "type": 1,
+      "hashtag_name": "ai大模型",
+      "hashtag_id": "1747263253066755",
+      "is_commerce": false,
+      "caption_start": 0,
+      "caption_end": 0
+    },
+    {
+      "start": 47,
+      "end": 50,
+      "type": 1,
+      "hashtag_name": "谷歌",
+      "hashtag_id": "1658626078403596",
+      "is_commerce": false,
+      "caption_start": 0,
+      "caption_end": 0
+    },
+    {
+      "start": 50,
+      "end": 58,
+      "type": 1,
+      "hashtag_name": "chatgpt",
+      "hashtag_id": "1757689128261636",
+      "is_commerce": false,
+      "caption_start": 0,
+      "caption_end": 0
+    },
+    {
+      "start": 58,
+      "end": 67,
+      "type": 1,
+      "hashtag_name": "deepseek",
+      "hashtag_id": "1784740573938700",
+      "is_commerce": false,
+      "caption_start": 0,
+      "caption_end": 0
+    }
+  ],
+  "is_top": 0,
+  "series_basic_info": {},
+  "share_info": {
+    "share_url": "https://www.iesdouyin.com/share/video/7594469617029339131/?region=HK&mid=7594019382658173705&u_code=16dm52g47&did=MS4wLjABAAAA_2y2x-HRwUb5AAp8mcJrCNqg1V7r7JXOvXzn5XYV_XnxjCL_t4vyFVV9NntDFkEZ&iid=MS4wLjABAAAANwkJuWIRFOzg5uCpDRpMj4OX-QryoDgn-yYlXQnRwQQ&with_sec_did=1&video_share_track_ver=&titleType=title&schema_type=37&share_sign=GmbCMH5TCjV9tX8GMUDNIRmvWpaEbgiZwHodUz.pfSM-&share_version=290100&ts=1792253099&from_aid=6383&from_ssr=1&share_track_info=%7B%22link_description_type%22%3A%22%22%7D",
+    "share_link_desc": "8.46 xsE:/ :5pm 05/24 g@O.KJ 全球十大AI模型。中国占了5席，美国占了四席，数量上我们超越了美国# 科普冷知识 # AI大模型 # 谷歌# ChatGPT# DeepSeek  %s 复制此链接，打开Dou音搜索，直接观看视频！"
+  },
+  "diversion_bar_info": [],
+  "video_labels": null,
+  "follow_shoot_clip_info": {
+    "clip_video_all": 7594019382658173705,
+    "clip_from_platform": 7594019382658173705,
+    "origin_clip_id": 7594019382658173705
+  },
+  "is_ads": false,
+  "duration": 0,
+  "aweme_type": 68,
+  "sec_item_id": "MS4wLjAAAAAA3sKWCHROsT1iNUvINrIDCHatJnp0qwHWhtgs3vMV4E77mlZXD19qmfp7f9lPSqpP",
+  "is_aigc_media": false,
+  "image_infos": null,
+  "risk_infos": {
+    "vote": false,
+    "warn": false,
+    "risk_sink": false,
+    "type": 0,
+    "content": ""
+  },
+  "is_25_story": 0,
+  "entertainment_video_type": 3,
+  "position": null,
+  "uniqid_position": null,
+  "comment_list": null,
+  "author_user_id": 2664837986392663,
+  "f_s_grouth_property": {
+    "is_natural_traffic": false,
+    "is_client_pack": false,
+    "is_related_path": false
+  },
+  "geofencing": [],
+  "item_aigc_follow_shot": 1,
+  "follow_shot_assets": null,
+  "region": "CN",
+  "video_text": null,
+  "aweme_listen_struct": {
+    "trace_info": "{\"copyright_not_speech\":\"false\",\"copyright_reason\":\"not_intercept\",\"copyright_tag_hit\":\"0\",\"copyright_use_aed_default\":\"true\",\"copyright_use_tag_default\":\"false\",\"cp_ab\":\"true\",\"desc\":\"\",\"duration_over\":\"false\",\"hit_high_risk\":\"false\",\"media_type\":\"2\",\"reason\":\"hit_ab_0\",\"show\":\"false\"}"
+  },
+  "collect_stat": 0,
+  "label_top_text": null,
+  "promotions": [],
+  "group_id": "7594469617029339131",
+  "prevent_download": false,
+  "nickname_position": null,
+  "challenge_position": null,
+  "nearby_hot_comment": null,
+  "encrypt_interest_point_list": null,
+  "component_control": {
+    "data_source_url": "/aweme/v1/web/aweme/post/"
+  },
+  "publish_plus_alienation": {
+    "alienation_type": 0
+  },
+  "long_video": null,
+  "douplus_user_type": 1,
+  "interest_points": null,
+  "game_tag_info": {
+    "is_game": false
+  },
+  "encrypt_key_phrase_list": null,
+  "interaction_stickers": null,
+  "is_from_ad_auth": false,
+  "origin_comment_ids": null,
+  "commerce_config_data": null,
+  "pack_usage_scene_by_req_path": "/aweme/v1/web/aweme/post/",
+  "video_control": {
+    "allow_download": false,
+    "share_type": 1,
+    "show_progress_bar": 0,
+    "draft_progress_bar": 0,
+    "allow_duet": true,
+    "allow_react": true,
+    "prevent_download_type": 2,
+    "allow_dynamic_wallpaper": false,
+    "timer_status": 1,
+    "allow_music": true,
+    "allow_stitch": true,
+    "allow_douplus": true,
+    "allow_share": true,
+    "share_grayed": false,
+    "download_ignore_visibility": true,
+    "duet_ignore_visibility": true,
+    "share_ignore_visibility": true,
+    "download_info": {
+      "level": 1,
+      "fail_info": {
+        "code": 290002,
+        "reason": "isolation_content",
+        "msg": "视频暂时无法保存，链接已复制"
+      }
+    },
+    "duet_info": {
+      "level": 2,
+      "fail_info": {
+        "code": 100017,
+        "reason": "aweme_type"
+      }
+    },
+    "allow_record": true,
+    "disable_record_reason": "",
+    "timer_info": {},
+    "show_ai_corner": false,
+    "show_watermark": false,
+    "text_copy_type": 0
+  },
+  "aweme_control": {
+    "can_forward": true,
+    "can_share": true,
+    "can_comment": true,
+    "can_show_comment": true
+  },
+  "enable_decorated_emoji": true,
+  "common_left_top_labels": null,
+  "is_moment_history": 0,
+  "ai_follow_images": null,
+  "anchors": null,
+  "hybrid_label": null,
+  "geofencing_regions": null,
+  "is_subtitled": 0,
+  "aweme_acl": {
+    "download_mask_panel": {
+      "code": 1,
+      "show_type": 0
+    }
+  },
+  "entertainment_recommend_info": "{\"recommend_free_count\":0,\"test_info\":\"\",\"recommend_playlet_trigger_reqid\":\"\",\"recommend_playlet_trigger_cid\":\"\",\"recommend_playlet_trigger_reqid_type\":\"\",\"playlet_continue_play_config\":null,\"roi3_mode\":0,\"predict_identity\":\"\"}",
+  "is_story": 0,
+  "is_new_text_mode": 0,
+  "shoot_way": "direct_shoot",
+  "can_be_oc_cover": true,
+  "cover_labels": null,
+  "image_follow_shot_assets": null,
+  "cf_assets_type": 0,
+  "guide_btn_type": 0,
+  "product_genre_info": {
+    "product_genre_type": 1,
+    "material_genre_sub_type_set": [
+      1
+    ],
+    "special_info": {
+      "recommend_group_name": 1
+    }
+  },
+  "is_moment_story": 0,
+  "images": [
+    {
+      "uri": "tos-cn-i-0813c000-ce/oMdJlNwZfAIURmDCAD9pOaC8eEEoFAAxWPAQRh",
+      "url_list": [
+        "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c000-ce/oMdJlNwZfAIURmDCAD9pOaC8eEEoFAAxWPAQRh~tplv-dy-aweme-images:q75.webp?lk3s=138a59ce&x-expires=1794844800&x-signature=V3xti7ZVraYhIs9PTQ2CN1Pscas%3D&from=327834062&s=PackSourceEnum_PUBLISH&se=false&sc=image&biz_tag=aweme_images&l=20261018000458F08BF3C93089743A0762",
+        "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c000-ce/oMdJlNwZfAIURmDCAD9pOaC8eEEoFAAxWPAQRh~tplv-dy-aweme-images:q75.jpeg?lk3s=138a59ce&x-expires=1794844800&x-signature=Ar4%2B4uo4wWlju%2FaAo7fKhaDeKb0%3D&from=327834062&s=PackSourceEnum_PUBLISH&se=false&sc=image&biz_tag=aweme_images&l=20261018000458F08BF3C93089743A0762"
+      ],
+      "download_url_list": [
+        "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c000-ce/oMdJlNwZfAIURmDCAD9pOaC8eEEoFAAxWPAQRh~tplv-dy-water-v2:5oqW6Z-z5Y-377yaYWlkdWppbmdqaXh1:1536:2704.webp?lk3s=138a59ce&x-expires=1794844800&x-signature=8BwwXrUjfA68%2B%2FSFN6WAIU31W%2Bg%3D&sig=agmhfUboHnC5-ThyvUPzVUXzIOE%3D&from=327834062&s=PackSourceEnum_PUBLISH&se=false&sc=image&biz_tag=aweme_images&l=20261018000458F08BF3C93089743A0762",
+        "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c000-ce/oMdJlNwZfAIURmDCAD9pOaC8eEEoFAAxWPAQRh~tplv-dy-water-v2:5oqW6Z-z5Y-377yaYWlkdWppbmdqaXh1:1536:2704.jpeg?lk3s=138a59ce&x-expires=1794844800&x-signature=VJlXRdvKXWM6Qh6xcVzU%2B%2FlAXe8%3D&sig=GPREn0v5u_eS1J2MNnDNXiMZPeM%3D&from=327834062&s=PackSourceEnum_PUBLISH&se=false&sc=image&biz_tag=aweme_images&l=20261018000458F08BF3C93089743A0762"
+      ],
+      "height": 2704,
+      "width": 1536,
+      "mask_url_list": null,
+      "interaction_stickers": null,
+      "is_new_text_mode": 0,
+      "watermark_free_download_url_list": null,
+      "resolution_log_param": {}
+    }
+  ],
+  "relation_labels": null,
+  "effect_inflow_effects": null,
+  "impression_data": {
+    "group_id_list_a": [],
+    "group_id_list_b": [],
+    "similar_id_list_a": null,
+    "similar_id_list_b": null,
+    "group_id_list_c": [],
+    "group_id_list_d": []
+  },
+  "select_anchor_expanded_content": 0,
+  "trends_event_track": "{}",
+  "libfinsert_task_id": "",
+  "social_tag_list": null,
+  "suggest_words": {
+    "suggest_words": [
+      {
+        "words": [
+          {
+            "word": "gemini",
+            "word_id": "6595871151669384455",
+            "info": "{\"End\":0,\"Start\":0,\"ecpm_boost_tag\":false,\"log_pb\":\"\",\"qrec_for_search\":\"{\\\"qrec_ad_info\\\":\\\"{\\\\\\\"ad_flag\\\\\\\":\\\\\\\"ad_flag_related_feed\\\\\\\",\\\\\\\"ad_boost_label\\\\\\\":64,\\\\\\\"from_item_id\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"video_ad_ecpm\\\\\\\\\\\\\\\":48.7}\\\\\\\",\\\\\\\"ad_ecpm\\\\\\\":0.72021484375}\\\"}\"}"
+          },
+          {
+            "word": "编程ai模型哪个强",
+            "word_id": "7271873360471168292",
+            "info": "{\"End\":0,\"Start\":0,\"ecpm_boost_tag\":false,\"log_pb\":\"\",\"qrec_for_search\":\"{}\"}"
+          },
+          {
+            "word": "grok开源",
+            "word_id": "7297815046971725090",
+            "info": "{\"End\":0,\"Start\":0,\"ecpm_boost_tag\":false,\"log_pb\":\"\",\"qrec_for_search\":\"{\\\"query_ecom\\\":\\\"1\\\"}\"}"
+          },
+          {
+            "word": "DeepSeek和Qwen区别",
+            "word_id": "7563690826933703951",
+            "info": "{\"End\":0,\"Start\":0,\"ecpm_boost_tag\":false,\"log_pb\":\"\",\"qrec_for_search\":\"{}\"}"
+          },
+          {
+            "word": "qwen大模型概念股",
+            "word_id": "7369623243156542746",
+            "info": "{\"End\":0,\"Start\":0,\"ecpm_boost_tag\":false,\"log_pb\":\"\",\"qrec_for_search\":\"{}\"}"
+          },
+          {
+            "word": "grok3实测",
+            "word_id": "7463233077437158682",
+            "info": "{\"End\":0,\"Start\":0,\"ecpm_boost_tag\":false,\"log_pb\":\"\",\"qrec_for_search\":\"{}\"}"
+          },
+          {
+            "word": "grokbot怎么用",
+            "word_id": "7601145052915701035",
+            "info": "{\"End\":0,\"Start\":0,\"ecpm_boost_tag\":false,\"log_pb\":\"\",\"qrec_for_search\":\"{}\"}"
+          },
+          {
+            "word": "grok4.5功能",
+            "word_id": "7630358417219015999",
+            "info": "{\"End\":0,\"Start\":0,\"ecpm_boost_tag\":false,\"log_pb\":\"\",\"qrec_for_search\":\"{}\"}"
+          }
+        ],
+        "scene": "comment_top_rec",
+        "icon_url": "",
+        "hint_text": "大家都在搜：",
+        "extra_info": "{\"is_life_intent\":1,\"resp_from\":\"hit_cache\"}"
+      },
+      {
+        "words": [
+          {
+            "word": "通义千问",
+            "word_id": "7217679176176997671",
+            "info": "{\"End\":0,\"Start\":0,\"ecpm_boost_tag\":false,\"log_pb\":\"\",\"qrec_for_search\":\"{}\"}"
+          }
+        ],
+        "scene": "feed_bottom_rec",
+        "icon_url": "",
+        "hint_text": "相关搜索",
+        "extra_info": "{\"resp_from\":\"hit_cache\"}"
+      },
+      {
+        "words": [],
+        "scene": "detail_inbox_rex",
+        "icon_url": "",
+        "hint_text": "",
+        "extra_info": "{}"
+      }
+    ]
+  },
+  "show_follow_button": {},
+  "duet_aggregate_in_music_tab": false,
+  "is_duet_sing": false,
+  "comment_permission_info": {
+    "comment_permission_status": 0,
+    "can_comment": true,
+    "item_detail_entry": false,
+    "press_entry": false,
+    "toast_guide": false
+  },
+  "original_images": null,
+  "is_multi_content": 0,
+  "series_paid_info": {
+    "series_paid_status": 0,
+    "item_price": 0
+  },
+  "category_da": 16,
+  "img_bitrate": [],
+  "comment_gid": 7594469617029339131,
+  "image_album_music_info": {
+    "begin_time": 0,
+    "end_time": 54804,
+    "volume": 100
+  },
+  "video_tag": [
+    {
+      "tag_id": 0,
+      "tag_name": "",
+      "level": 0
+    },
+    {
+      "tag_id": 0,
+      "tag_name": "",
+      "level": 0
+    },
+    {
+      "tag_id": 0,
+      "tag_name": "",
+      "level": 0
+    }
+  ],
+  "is_collects_selected": 0,
+  "chapter_list": null,
+  "feed_comment_config": {
+    "input_config_text": "善语结善缘，恶言伤人心",
+    "author_audit_status": 0,
+    "common_flags": "{\"api_ab\":\"0\",\"hashtag\":\"[{\\\"name\\\":\\\"ai大模型\\\",\\\"id\\\":1747263253066755},{\\\"name\\\":\\\"谷歌\\\",\\\"id\\\":1658626078403596},{\\\"name\\\":\\\"chatgpt\\\",\\\"id\\\":1757689128261636},{\\\"name\\\":\\\"deepseek\\\",\\\"id\\\":1784740573938700},{\\\"name\\\":\\\"科普冷知识\\\",\\\"id\\\":1600788238934062}]\",\"item_author_nickname\":\"A港美风口\",\"mix_follower_count\":\"{\\\"100807436168\\\":115538,\\\"2664837986392663\\\":1993}\",\"video_labels_v2_tag1\":\"科技\",\"video_labels_v2_tag2\":\"科技科普\",\"video_type\":\"all\"}",
+    "audio_comment_permission": 0,
+    "double_publish_limit": 1,
+    "common_comment_permission": 0,
+    "input_config_text_type": "default_guide"
+  },
+  "is_image_beat": false,
+  "dislike_dimension_list": null,
+  "standard_bar_info_list": null,
+  "photo_search_entrance": {
+    "ecom_type": 0
+  },
+  "is_life_item": false,
+  "image_list": null,
+  "component_info_v2": "{\"desc_lines_limit\":0,\"hide_marquee\":false}",
+  "item_warn_notification": {
+    "type": 0,
+    "show": false,
+    "content": ""
+  },
+  "origin_text_extra": null,
+  "preview_title": "全球十大AI模型。中国占了5席，美国占了四席，数量上我们超越了美国#科普冷知识 #AI大模型 #谷歌#ChatGPT#DeepSeek",
+  "disable_relation_bar": 0,
+  "packed_clips": null,
+  "author_mask_tag": 0,
+  "user_recommend_status": 1,
+  "collection_corner_mark": 0,
+  "is_share_post": false,
+  "image_comment": {
+    "comment_highlight_text": ""
+  },
+  "visual_search_info": {
+    "is_show_img_entrance": true,
+    "is_ecom_img": false,
+    "is_high_accuracy_ecom": false,
+    "is_high_recall_ecom": false
+  },
+  "tts_id_list": null,
+  "ref_tts_id_list": null,
+  "voice_modify_id_list": null,
+  "ref_voice_modify_id_list": null,
+  "authentication_token": "MS4wLjAAAAAAVO6NTeCuZJ_dIEEX_lvBQ_o86CW88PTzcqvpvzl54KFtD6mBcQ26cUkqrEuMR8FF6m2txFz3haSgFeFJoTOcn5AyZMw6K3Rn87NclAa2RFf-PqCT9GwTuWnE1_O1VEF4zaK3nPm7CpGfDEvqJG7SyyqHjs7Gjtu7sIsiYIA0USZo-dB-8lMn0zS-hicRII7Fc9ip5iVENi__jJj18y_1cC99lH2cl093dRtjaw4Ti8ZZ8RNOKYCKSmhbCr6vxZWkPoNJhsx5nGSrF6CsuMz2vw",
+  "video_game_data_channel_config": {},
+  "dislike_dimension_list_v2": null,
+  "distribute_circle": {
+    "distribute_type": 0,
+    "campus_block_interaction": false,
+    "is_campus": false
+  },
+  "image_crop_ctrl": 0,
+  "yumme_recreason": null,
+  "slides_music_beats": null,
+  "jump_tab_info_list": null,
+  "media_type": 2,
+  "play_progress": {
+    "play_progress": 0,
+    "last_modified_time": 0
+  },
+  "reply_smart_emojis": null,
+  "activity_video_type": 0,
+  "boost_status": 0,
+  "create_scale_type": null,
+  "entertainment_product_info": {
+    "sub_title": null,
+    "market_info": {
+      "limit_free": {
+        "in_free": false
+      },
+      "marketing_tag": null
+    }
+  },
+  "caption": "",
+  "item_title": "",
+  "is_use_music": true,
+  "original": 0,
+  "xigua_base_info": {
+    "status": 0,
+    "star_altar_order_id": 0,
+    "star_altar_type": 0,
+    "item_id": 0
+  },
+  "mark_largely_following": false,
+  "friend_recommend_info": {
+    "friend_recommend_source": 10,
+    "label_user_list": null,
+    "disable_friend_recommend_guide_label": false
+  },
+  "enable_comment_sticker_rec": false,
+  "video_share_edit_status": 0,
+  "is_24_story": 0,
+  "image_item_quality_level": 0,
+  "trends_infos": null,
+  "chapter_bar_color": null,
+  "flash_mob_trends": 0,
+  "ent_log_extra": {
+    "log_extra": "{\"global_log_extra\":null,\"page_log_extra\":null,\"aweme_log_extra\":{\"ce_current_group_id\":\"7594469617029339131\",\"author_id\":\"2664837986392663\"},\"extra_log_extra\":null}"
+  },
+  "personal_page_botton_diagnose_style": 0,
+  "aweme_type_tags": "",
+  "origin_duet_resource_uri": "",
+  "can_cache_to_local": false,
+  "mv_info": null
+}
