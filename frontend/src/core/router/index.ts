@@ -42,6 +42,16 @@ const router = createRouter({
           }
         },
         {
+          path: 'douyin',
+          name: 'douyin',
+          component: () => import('@/common/views/DouyinVideoView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '抖音视频监控',
+            lead: '粘贴抖音分享文本，解析链接并收录到监控列表。'
+          }
+        },
+        {
           path: 'datasets',
           name: 'datasets',
           component: () => import('@/common/views/ComingSoonView.vue'),
