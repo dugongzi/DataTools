@@ -3,10 +3,10 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# 安装 pnpm
-RUN npm install -g pnpm
+# 安装 pnpm（与 pnpm-lock.yaml v9 兼容）
+RUN npm install -g pnpm@9
 
-# 复制 package 文件
+# 复制依赖清单（lockfile 已纳入版本控制，保证构建可复现）
 COPY frontend/package.json frontend/pnpm-lock.yaml ./
 
 # 安装依赖
