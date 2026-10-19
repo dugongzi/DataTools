@@ -282,6 +282,9 @@ def _execute(run_id: int, video_ids=None):
         latest = latest_map.get(video.id)
         inputs.append(latest.aweme_id if latest and latest.aweme_id else video.url)
 
+    # 关闭上面的读事务：采集可能长时间阻塞，不能让 MDL 一直挂在这里挡住 DDL
+    db.session.commit()
+
     success = 0
     failed = 0
 
