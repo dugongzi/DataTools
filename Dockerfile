@@ -1,5 +1,5 @@
-# 构建阶段
-FROM node:22-alpine AS builder
+# ---------- 阶段 1：构建前端 ----------
+FROM node:22-alpine AS frontend-builder
 
 WORKDIR /app
 
@@ -9,24 +9,59 @@ RUN npm install -g pnpm@9
 # 复制依赖清单（lockfile 已纳入版本控制，保证构建可复现）
 COPY frontend/package.json frontend/pnpm-lock.yaml ./
 
-# 安装依赖
 RUN pnpm install --frozen-lockfile
 
-# 复制源代码
 COPY frontend/ ./
 
-# 构建应用
+# 前端请求统一走同容器内的 nginx 反向代理
+ENV VITE_API_BASE_URL=/api
 RUN pnpm run build
 
-# 生产阶段
-FROM nginx:alpine
+# ---------- 阶段 2：运行时（nginx + gunicorn 同一镜像） ----------
+FROM python:3.12-slim
 
-# 复制构建产物到 nginx
-COPY --from=builder /app/dist /usr/share/nginx/html
+ENV PYTHONUNBUFFERED=1
 
-# 复制 nginx 配置（可选）
+WORKDIR /app
+
+COPY backend/requirements.txt ./requirements.txt
+
+RUN pip install --no-cache-dir -r requirements.txt \
+    && playwright install --with-deps chromium \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends nginx supervisor \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -f /etc/nginx/sites-enabled/default
+
+COPY backend ./backend
+COPY --from=frontend-builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
+# 同一容器内同时管理 nginx 与 gunicorn
+RUN printf '%s\n' \
+    '[supervisord]' \
+    'nodaemon=true' \
+    'logfile=/dev/null' \
+    'logfile_maxbytes=0' \
+    'pidfile=/tmp/supervisord.pid' \
+    '' \
+    '[program:nginx]' \
+    'command=nginx -g "daemon off;"' \
+    'priority=10' \
+    'stdout_logfile=/dev/stdout' \
+    'stdout_logfile_maxbytes=0' \
+    'stderr_logfile=/dev/stderr' \
+    'stderr_logfile_maxbytes=0' \
+    '' \
+    '[program:gunicorn]' \
+    'command=gunicorn --chdir /app --bind 0.0.0.0:5000 --workers 2 --timeout 120 backend.main:app' \
+    'priority=20' \
+    'stdout_logfile=/dev/stdout' \
+    'stdout_logfile_maxbytes=0' \
+    'stderr_logfile=/dev/stderr' \
+    'stderr_logfile_maxbytes=0' \
+    > /etc/supervisor/conf.d/datatools.conf
 
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 80 5000
+
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/datatools.conf"]

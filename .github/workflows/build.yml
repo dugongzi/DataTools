@@ -16,9 +16,6 @@ concurrency:
   group: docker-build-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  COMPOSE_PROJECT_NAME: datatools
-
 jobs:
   build:
     name: Build
@@ -27,11 +24,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare env file
-        run: cp .env.example .env
-
-      - name: Build all images
-        run: docker compose build
+      - name: Build image
+        run: docker build -t datatools .
 
       - name: Log in to GHCR
         if: startsWith(github.ref, 'refs/tags/v')
@@ -41,22 +35,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push images
+      # 推送为 ghcr.io/<owner>/<repo>:<版本> 与 :latest
+      - name: Push image
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
-          IMAGE_PREFIX="ghcr.io/${GITHUB_REPOSITORY,,}"
-          VERSION="${GITHUB_REF_NAME}"
-          for name in frontend backend; do
-            docker tag "datatools-$name" "$IMAGE_PREFIX/$name:$VERSION"
-            docker tag "datatools-$name" "$IMAGE_PREFIX/$name:latest"
-            docker push "$IMAGE_PREFIX/$name:$VERSION"
-            docker push "$IMAGE_PREFIX/$name:latest"
-          done
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}"
+          docker tag datatools "$IMAGE:${GITHUB_REF_NAME}"
+          docker tag datatools "$IMAGE:latest"
+          docker push "$IMAGE:${GITHUB_REF_NAME}"
+          docker push "$IMAGE:latest"
 
-      - name: Package images
+      - name: Package image
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
-          docker save datatools-frontend datatools-backend | gzip -1 > "datatools-${GITHUB_REF_NAME}.tar.gz"
+          docker save datatools | gzip -1 > "datatools-${GITHUB_REF_NAME}.tar.gz"
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
