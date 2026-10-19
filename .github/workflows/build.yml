@@ -53,13 +53,22 @@ jobs:
             docker push "$IMAGE_PREFIX/$name:latest"
           done
 
+      - name: Package images
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          docker save datatools-frontend | gzip -1 > "datatools-frontend-${GITHUB_REF_NAME}.tar.gz"
+          docker save datatools-backend | gzip -1 > "datatools-backend-${GITHUB_REF_NAME}.tar.gz"
+
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            echo "Release $GITHUB_REF_NAME already exists"
+            gh release upload "$GITHUB_REF_NAME" ./*.tar.gz --clobber
           else
-            gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --generate-notes
+            gh release create "$GITHUB_REF_NAME" \
+              --title "$GITHUB_REF_NAME" \
+              --generate-notes \
+              ./*.tar.gz
           fi
