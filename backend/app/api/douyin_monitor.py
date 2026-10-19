@@ -19,6 +19,21 @@ def get_douyin_monitor_overview():
     return jsonify(stats.build_overview(window, top_n))
 
 
+def _parse_video_ids():
+    raw = request.args.get('video_ids') or request.args.get('video_id')
+    if not raw:
+        return None
+    ids = []
+    for part in raw.split(','):
+        try:
+            value = int(part.strip())
+        except ValueError:
+            continue
+        if value not in ids:
+            ids.append(value)
+    return ids[:10] or None
+
+
 @api_bp.route('/douyin/monitor/charts', methods=['GET'])
 @require_auth
 def get_douyin_monitor_charts():
@@ -28,7 +43,7 @@ def get_douyin_monitor_charts():
     except (TypeError, ValueError):
         top_n = 8
     top_n = min(max(top_n, 1), 20)
-    return jsonify(stats.build_charts(window, top_n))
+    return jsonify(stats.build_charts(window, top_n, _parse_video_ids()))
 
 
 @api_bp.route('/douyin/monitor/config', methods=['GET'])
@@ -90,6 +105,31 @@ def trigger_douyin_monitor_run():
 def get_douyin_monitor_run(run_id):
     run = DouyinMonitorRun.query.get_or_404(run_id)
     return jsonify(monitor.run_to_dict(run))
+
+
+@api_bp.route('/douyin/monitor/run/failed', methods=['POST'])
+@require_auth
+def retry_douyin_monitor_failed():
+    video_ids = monitor.failed_video_ids()
+    if not video_ids:
+        return jsonify({'error': '没有采集失败的视频'}), 400
+
+    run, running = monitor.start_run(
+        current_app._get_current_object(),
+        trigger_type='manual',
+        video_ids=video_ids,
+    )
+    if run is None:
+        return jsonify({
+            'error': '已有采集任务在运行',
+            'run': monitor.run_to_dict(running),
+        }), 409
+
+    return jsonify({
+        'run_id': run.id,
+        'run': monitor.run_to_dict(run),
+        'total': len(video_ids),
+    }), 202
 
 
 @api_bp.route('/douyin/monitor/runs', methods=['GET'])

@@ -270,10 +270,22 @@ def _trend_edges(window, snapshots):
     return edges, size
 
 
-def build_trend(window, video_ids):
-    """按时间分桶汇总互动增长：每条快照相对同视频上一条快照的增量。"""
+def _trend_points(edges, buckets):
+    return [
+        {
+            'time': iso_utc(edges[index + 1]),
+            **bucket,
+            'interaction': sum(bucket.values()),
+        }
+        for index, bucket in enumerate(buckets)
+    ]
+
+
+def build_trend_series(window, video_ids):
+    """按视频分桶汇总新增互动，返回 (聚合趋势, 每条视频趋势)。"""
+    empty = {'bucket_seconds': 0, 'points': []}
     if not video_ids:
-        return {'bucket_seconds': 0, 'points': []}
+        return empty, []
 
     start = window_start(window)
     query = db.session.query(
@@ -296,18 +308,20 @@ def build_trend(window, video_ids):
         DouyinVideoSnapshot.id.asc(),
     ).all()
     if not rows:
-        return {'bucket_seconds': 0, 'points': []}
+        return empty, []
 
     edges, size = _trend_edges(window, rows)
     bucket_count = len(edges) - 1
-    buckets = [{metric: 0 for metric in METRICS} for _ in range(bucket_count)]
+    aggregate = [{metric: 0 for metric in METRICS} for _ in range(bucket_count)]
 
     grouped = {}
     for row in rows:
         grouped.setdefault(row.video_id, []).append(row)
 
     baseline = _baseline_snapshots(list(grouped), start)
+    per_video = {}
     for video_id, items in grouped.items():
+        buckets = [{metric: 0 for metric in METRICS} for _ in range(bucket_count)]
         previous = baseline.get(video_id)
         for row in items:
             if previous is not None and row.captured_at is not None:
@@ -316,17 +330,21 @@ def build_trend(window, video_ids):
                 for metric in METRICS:
                     delta = int(getattr(row, metric) or 0) - int(getattr(previous, metric) or 0)
                     buckets[index][metric] += delta
+                    aggregate[index][metric] += delta
             previous = row
+        per_video[video_id] = buckets
 
-    points = [
+    bucket_seconds = int(size.total_seconds())
+    trend = {'bucket_seconds': bucket_seconds, 'points': _trend_points(edges, aggregate)}
+    series = [
         {
-            'time': iso_utc(edges[index + 1]),
-            **bucket,
-            'interaction': sum(bucket.values()),
+            'video_id': video_id,
+            'bucket_seconds': bucket_seconds,
+            'points': _trend_points(edges, buckets),
         }
-        for index, bucket in enumerate(buckets)
+        for video_id, buckets in per_video.items()
     ]
-    return {'bucket_seconds': int(size.total_seconds()), 'points': points}
+    return trend, series
 
 
 def build_author_ranking(top_n=8):
@@ -353,16 +371,45 @@ def build_author_ranking(top_n=8):
     return [{'author': author, 'interaction': value} for author, value in ranked]
 
 
-def build_charts(window=DEFAULT_WINDOW, top_n=8):
-    """主页图表数据：增长趋势、互动构成、增长 Top 视频、作者排行。"""
+def build_charts(window=DEFAULT_WINDOW, top_n=8, video_ids=None):
+    """主页图表数据：增长趋势、互动构成、增长 Top 视频、作者排行。
+
+    video_ids 为空表示全部视频；非空时趋势只统计所选视频，并返回逐视频序列。
+    """
     window = parse_window(window)
     overview = build_overview(window, top_n)
     videos = DouyinVideo.query.order_by(DouyinVideo.id).all()
-    trend = build_trend(window, [video.id for video in videos])
+    wanted = set(video_ids) if video_ids else None
+    selected = [video for video in videos if wanted is None or video.id in wanted]
+    trend, series = build_trend_series(window, [video.id for video in selected])
+
+    meta = {video.id: video for video in selected}
+    # 未选视频时不返回逐视频序列，避免视频较多时响应体过大。
+    trends = [] if wanted is None else [
+        {
+            'video_id': item['video_id'],
+            'title': meta[item['video_id']].title,
+            'author': meta[item['video_id']].author,
+            'bucket_seconds': item['bucket_seconds'],
+            'points': item['points'],
+        }
+        for item in series
+        if item['video_id'] in meta
+    ]
 
     return {
         'window': window,
         'trend': trend,
+        'trends': trends,
+        'videos': [
+            {
+                'id': video.id,
+                'url': video.url,
+                'title': video.title,
+                'author': video.author,
+            }
+            for video in videos
+        ],
         'composition': overview['totals'],
         'top_videos': overview['top_videos'],
         'authors': build_author_ranking(top_n),

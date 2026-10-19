@@ -19,18 +19,8 @@ const router = createRouter({
     {
       path: '/',
       component: () => import('@/common/layout/AppShell.vue'),
-      redirect: { name: 'dashboard' },
+      redirect: { name: 'douyin' },
       children: [
-        {
-          path: 'dashboard',
-          name: 'dashboard',
-          component: () => import('@/common/views/ComingSoonView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '仪表盘',
-            lead: '概览关键指标与近期动态。'
-          }
-        },
         {
           path: 'users',
           name: 'users',
@@ -52,16 +42,6 @@ const router = createRouter({
           }
         },
         {
-          path: 'datasets',
-          name: 'datasets',
-          component: () => import('@/common/views/ComingSoonView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '数据集',
-            lead: '浏览、导入与整理数据集合。'
-          }
-        },
-        {
           path: 'settings',
           name: 'settings',
           component: () => import('@/common/views/SettingsView.vue'),
@@ -75,7 +55,7 @@ const router = createRouter({
     },
     {
       path: '/:pathMatch(.*)*',
-      redirect: { name: 'dashboard' }
+      redirect: { name: 'douyin' }
     }
   ]
 })
@@ -86,7 +66,7 @@ router.beforeEach((to) => {
     return { name: 'login' }
   }
   if (to.name === 'login' && authenticated) {
-    return { name: 'dashboard' }
+    return { name: 'douyin' }
   }
 })
 

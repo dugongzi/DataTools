@@ -60,6 +60,16 @@ export interface TriggerMonitorRunJson {
   run: DouyinMonitorRunJson
 }
 
+export interface DouyinMonitorRunListJson {
+  items: DouyinMonitorRunJson[]
+}
+
+export interface RetryMonitorRunJson {
+  run_id: number
+  run: DouyinMonitorRunJson
+  total: number
+}
+
 function parseDate(value: string | null): Date | null {
   if (!value) return null
   const date = new Date(value)

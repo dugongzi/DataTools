@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as echarts from 'echarts/core'
-import { LineChart } from 'echarts/charts'
+import { BarChart } from 'echarts/charts'
 import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { ECharts, EChartsOption } from 'echarts'
@@ -13,7 +13,7 @@ import type {
 } from '@/core/types/entities/douyin_video.entity'
 import type { DouyinWindow } from '@/core/types/dto/douyin_video.dto'
 
-echarts.use([LineChart, GridComponent, LegendComponent, TooltipComponent, CanvasRenderer])
+echarts.use([BarChart, GridComponent, LegendComponent, TooltipComponent, CanvasRenderer])
 
 const props = defineProps<{
   video: DouyinVideo
@@ -44,6 +44,8 @@ const error = ref<string | null>(null)
 const snapshots = ref<DouyinSnapshot[]>([])
 const growth = ref<DouyinGrowth | null>(null)
 const chartEl = ref<HTMLDivElement | null>(null)
+const exporting = ref(false)
+const exportError = ref<string | null>(null)
 
 let chart: ECharts | null = null
 let observer: ResizeObserver | null = null
@@ -105,6 +107,15 @@ function renderChart() {
   const valid = snapshots.value.filter(
     (item) => item.error === null && item.capturedAt instanceof Date
   )
+  // 图表展示每次采集相对上一次的新增，累计值放在下方明细表中
+  const deltas = valid.map((snapshot, index) => {
+    const previous = index > 0 ? valid[index - 1] ?? null : null
+    return SERIES.map((item) => {
+      const current = snapshot[item.key]
+      if (previous === null) return 0
+      return Math.max(0, current - previous[item.key])
+    })
+  })
   const textColor = token('--text-muted', '#6e6e73')
   const subtleColor = token('--text-subtle', '#86868b')
   const lineColor = token('--separator', 'rgba(0, 0, 0, 0.1)')
@@ -127,7 +138,7 @@ function renderChart() {
     },
     xAxis: {
       type: 'category',
-      boundaryGap: false,
+      boundaryGap: true,
       data: valid.map((item) => chartLabel(item.capturedAt)),
       axisLine: { lineStyle: { color: lineColor } },
       axisTick: { show: false },
@@ -142,15 +153,14 @@ function renderChart() {
       },
       splitLine: { lineStyle: { color: lineColor } }
     },
-    series: SERIES.map((item) => ({
+    series: SERIES.map((item, seriesIndex) => ({
       name: item.name,
-      type: 'line',
-      smooth: true,
-      showSymbol: valid.length < 12,
-      symbolSize: 5,
-      lineStyle: { width: 2, color: item.color },
+      type: 'bar',
+      stack: 'delta',
+      barMaxWidth: 20,
       itemStyle: { color: item.color },
-      data: valid.map((snapshot) => snapshot[item.key])
+      emphasis: { focus: 'series' },
+      data: deltas.map((row) => row[seriesIndex])
     }))
   }
 
@@ -176,6 +186,20 @@ async function loadSnapshots() {
 
 function onKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape') emit('close')
+}
+
+async function exportSnapshots() {
+  if (exporting.value) return
+  exporting.value = true
+  exportError.value = null
+  try {
+    await douyinApi.exportSnapshots(props.video.id, props.window)
+  } catch (e) {
+    exportError.value = '导出失败，请稍后重试'
+    console.error(e)
+  } finally {
+    exporting.value = false
+  }
 }
 
 watch(
@@ -212,17 +236,29 @@ onBeforeUnmount(() => {
             <a :href="video.url" target="_blank" rel="noopener noreferrer">打开视频</a>
           </p>
         </div>
-        <button class="drawer__close" type="button" aria-label="关闭" @click="emit('close')">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M6 6l12 12M18 6L6 18"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
-        </button>
+        <div class="drawer__head-actions">
+          <button
+            class="drawer__export"
+            type="button"
+            :disabled="exporting || loading"
+            @click="exportSnapshots"
+          >
+            {{ exporting ? '导出中…' : '导出快照' }}
+          </button>
+          <button class="drawer__close" type="button" aria-label="关闭" @click="emit('close')">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M6 6l12 12M18 6L6 18"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </div>
       </header>
+
+      <p v-if="exportError" class="drawer__export-error">{{ exportError }}</p>
 
       <div class="drawer__body">
         <p v-if="loading && !snapshots.length" class="drawer__state">正在加载历史数据…</p>
@@ -269,7 +305,7 @@ onBeforeUnmount(() => {
           <section class="chart-block">
             <div class="chart-block__head">
               <h3 class="chart-block__title">互动趋势</h3>
-              <span class="chart-block__hint">{{ snapshots.length }} 次采集</span>
+              <span class="chart-block__hint">{{ snapshots.length }} 次采集 · 每次新增</span>
             </div>
             <div ref="chartEl" class="chart"></div>
             <p v-if="!snapshots.length" class="chart-block__empty">窗口内暂无采集记录</p>
@@ -435,6 +471,47 @@ onBeforeUnmount(() => {
 .drawer__close svg {
   width: 16px;
   height: 16px;
+}
+
+.drawer__head-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.drawer__export {
+  padding: 0.375rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--field-bg);
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color 0.16s ease,
+    background 0.16s ease;
+}
+
+.drawer__export:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--field-bg-hover);
+}
+
+.drawer__export:disabled {
+  color: var(--text-subtle);
+  cursor: not-allowed;
+}
+
+.drawer__export-error {
+  margin: 0;
+  padding: 0.5rem 1.5rem;
+  font-size: 0.75rem;
+  color: var(--danger);
+  background: var(--danger-bg);
 }
 
 .drawer__body {

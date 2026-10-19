@@ -28,7 +28,7 @@ async function handleSubmit() {
     })
     localStorage.setItem('access_token', response.data.access_token)
     localStorage.setItem('username', username.value)
-    await router.push({ name: 'dashboard' })
+    await router.push({ name: 'douyin' })
   } catch {
     error.value = '登录失败，请检查用户名和密码'
   } finally {

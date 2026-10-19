@@ -5,9 +5,11 @@ import { BarChart, LineChart, PieChart } from 'echarts/charts'
 import { GridComponent, LegendComponent, TitleComponent, TooltipComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { ECharts, EChartsOption } from 'echarts'
+import { DouyinVideo } from '@/core/types/entities/douyin_video.entity'
 import type {
+  DouyinChartVideo,
   DouyinCharts,
-  DouyinVideo
+  DouyinTrendSeries
 } from '@/core/types/entities/douyin_video.entity'
 import type { DouyinWindow } from '@/core/types/dto/douyin_video.dto'
 
@@ -26,10 +28,13 @@ const props = defineProps<{
   charts: DouyinCharts | null
   loading?: boolean
   window: DouyinWindow
+  videoIds?: number[]
+  videos?: DouyinVideo[]
 }>()
 
 const emit = defineEmits<{
   open: [video: DouyinVideo]
+  'select-videos': [ids: number[]]
 }>()
 
 const WINDOW_LABELS: Record<DouyinWindow, string> = {
@@ -47,6 +52,32 @@ const SERIES = [
   { key: 'collectCount', name: '收藏', color: '#af52de' }
 ] as const
 
+type TrendMetric = 'all' | 'interaction' | 'digg' | 'comment' | 'share' | 'collect'
+
+const METRIC_COLORS: Record<TrendMetric, string> = {
+  all: '#0071e3',
+  interaction: '#0071e3',
+  digg: '#0071e3',
+  comment: '#34c759',
+  share: '#ff9500',
+  collect: '#af52de'
+}
+
+const METRIC_OPTIONS: { value: TrendMetric; label: string }[] = [
+  { value: 'all', label: '分项' },
+  { value: 'interaction', label: '总量' },
+  { value: 'digg', label: '点赞' },
+  { value: 'comment', label: '评论' },
+  { value: 'share', label: '分享' },
+  { value: 'collect', label: '收藏' }
+]
+
+const COMPARE_COLORS = ['#0071e3', '#34c759', '#ff9500', '#af52de', '#ff3b30']
+const MAX_COMPARE = 5
+
+const metric = ref<TrendMetric>('all')
+const compareMode = ref(false)
+
 const rootEl = ref<HTMLElement | null>(null)
 const trendEl = ref<HTMLDivElement | null>(null)
 const compositionEl = ref<HTMLDivElement | null>(null)
@@ -58,15 +89,75 @@ const observers = new Map<string, ResizeObserver>()
 
 const windowLabel = computed(() => WINDOW_LABELS[props.window])
 const trendPoints = computed(() => props.charts?.trend ?? [])
+const trendSeries = computed<DouyinTrendSeries[]>(() => props.charts?.trends ?? [])
+const chartVideos = computed<DouyinChartVideo[]>(() => {
+  const fromCharts = props.charts?.videos ?? []
+  if (fromCharts.length > 0) return fromCharts
+  // 图表数据可能来自旧版本接口（缺少 videos 字段），回退到视频列表，保证下拉始终有选项。
+  return (props.videos ?? []).map((video) => ({
+    id: video.id,
+    url: video.url,
+    title: video.title,
+    author: video.author
+  }))
+})
 const composition = computed(() => props.charts?.composition ?? null)
 const topVideos = computed(() => props.charts?.topVideos ?? [])
 const topVideosAsc = computed(() => [...topVideos.value].reverse())
 const authors = computed(() => props.charts?.authors ?? [])
 const authorsAsc = computed(() => [...authors.value].reverse())
 
-const totalGrowth = computed(() =>
-  trendPoints.value.reduce((sum, point) => sum + point.interaction, 0)
+const selectedIds = computed(() => props.videoIds ?? [])
+const singleVideoId = computed(() =>
+  !compareMode.value && selectedIds.value.length === 1 ? selectedIds.value[0] ?? 0 : 0
 )
+const singleVideo = computed(() =>
+  chartVideos.value.find((video) => video.id === singleVideoId.value) ?? null
+)
+const compareSeries = computed(() =>
+  compareMode.value ? trendSeries.value.slice(0, MAX_COMPARE) : []
+)
+
+const activeMetric = computed<TrendMetric>(() =>
+  compareMode.value && metric.value === 'all' ? 'interaction' : metric.value
+)
+
+const trendHint = computed(() => {
+  if (compareSeries.value.length > 0) {
+    return `${windowLabel.value} · 对比 ${compareSeries.value.length} 条视频 · 每${bucketLabel.value}新增`
+  }
+  if (singleVideo.value) {
+    return `${windowLabel.value} · ${shortLabel(videoLabel(singleVideo.value), 18)} · 每${bucketLabel.value}新增`
+  }
+  return `${windowLabel.value} · 每${bucketLabel.value}新增互动`
+})
+
+const metricLabel = computed(
+  () => METRIC_OPTIONS.find((option) => option.value === metric.value)?.label ?? '互动'
+)
+
+function metricValue(
+  point: { diggCount: number; commentCount: number; shareCount: number; collectCount: number; interaction: number },
+  key: TrendMetric
+) {
+  if (key === 'digg') return point.diggCount
+  if (key === 'comment') return point.commentCount
+  if (key === 'share') return point.shareCount
+  if (key === 'collect') return point.collectCount
+  return point.interaction
+}
+
+const totalGrowth = computed(() => {
+  const points = trendPoints.value
+  if (compareMode.value && compareSeries.value.length > 0) {
+    return compareSeries.value.reduce(
+      (sum, series) =>
+        sum + series.points.reduce((acc, point) => acc + metricValue(point, activeMetric.value), 0),
+      0
+    )
+  }
+  return points.reduce((sum, point) => sum + metricValue(point, activeMetric.value), 0)
+})
 const totalInteraction = computed(() => composition.value?.interaction ?? 0)
 
 const bucketLabel = computed(() => {
@@ -98,8 +189,46 @@ function shortLabel(value: string, max = 14) {
   return value.length > max ? `${value.slice(0, max)}…` : value
 }
 
-function videoLabel(video: DouyinVideo) {
+function videoLabel(video: { title: string | null; author: string | null }) {
   return video.title || video.author || '未命名视频'
+}
+
+function openVideoById(id: number) {
+  const full = topVideos.value.find((video) => video.id === id)
+  if (full) {
+    emit('open', full)
+    return
+  }
+  const item = chartVideos.value.find((video) => video.id === id)
+  if (!item) return
+  emit('open', new DouyinVideo(item.id, item.url, item.author, item.title, null, new Date(), new Date()))
+}
+
+function onSingleChange(event: Event) {
+  const value = Number((event.target as HTMLSelectElement).value)
+  emit('select-videos', value > 0 ? [value] : [])
+}
+
+function toggleCompare() {
+  if (compareMode.value) {
+    compareMode.value = false
+    if (selectedIds.value.length > 0) emit('select-videos', [])
+    return
+  }
+  compareMode.value = true
+  if (metric.value === 'all') metric.value = 'interaction'
+  if (selectedIds.value.length === 0) {
+    const defaults = chartVideos.value.slice(0, 3).map((video) => video.id)
+    if (defaults.length > 0) emit('select-videos', defaults)
+  }
+}
+
+function toggleCompareVideo(id: number) {
+  const current = selectedIds.value
+  const next = current.includes(id)
+    ? current.filter((item) => item !== id)
+    : [...current, id].slice(0, MAX_COMPARE)
+  emit('select-videos', next)
 }
 
 function mountChart(key: string, el: HTMLDivElement | null): ECharts | null {
@@ -126,16 +255,60 @@ function renderTrend() {
   const chart = mountChart('trend', trendEl.value)
   if (!chart) return
 
-  const points = trendPoints.value
+  const compare = compareSeries.value
+  const points = compare.length > 0 ? compare[0]?.points ?? [] : trendPoints.value
   const textColor = token('--text-muted', '#6e6e73')
   const subtleColor = token('--text-subtle', '#86868b')
   const lineColor = token('--separator', 'rgba(0, 0, 0, 0.1)')
 
+  let series: EChartsOption['series']
+  if (compare.length > 0) {
+    series = compare.map((item, index) => ({
+      name: shortLabel(item.title || item.author || `视频 ${item.videoId}`, 16),
+      type: 'line',
+      smooth: true,
+      symbol: 'none',
+      triggerLineEvent: true,
+      lineStyle: { width: 2 },
+      itemStyle: { color: COMPARE_COLORS[index % COMPARE_COLORS.length] },
+      emphasis: { focus: 'series' },
+      data: item.points.map((point) => metricValue(point, activeMetric.value))
+    })) as EChartsOption['series']
+  } else if (metric.value === 'all') {
+    series = SERIES.map((item) => ({
+      name: item.name,
+      type: 'bar',
+      stack: 'growth',
+      barMaxWidth: 24,
+      itemStyle: { color: item.color },
+      emphasis: { focus: 'series' },
+      data: points.map((point) => point[item.key])
+    })) as EChartsOption['series']
+  } else {
+    series = [
+      {
+        name: metricLabel.value,
+        type: 'bar',
+        barMaxWidth: 24,
+        itemStyle: { color: METRIC_COLORS[activeMetric.value] },
+        emphasis: { focus: 'series' },
+        data: points.map((point) => metricValue(point, activeMetric.value))
+      }
+    ] as EChartsOption['series']
+  }
+
   const option: EChartsOption = {
     animationDuration: 320,
-    grid: { left: 4, right: 8, top: 40, bottom: 4, containLabel: true },
+    grid: {
+      left: 4,
+      right: 8,
+      top: compare.length > 0 ? 48 : 40,
+      bottom: 4,
+      containLabel: true
+    },
     tooltip: {
       trigger: 'axis',
+      axisPointer: { type: compare.length > 0 ? 'line' : 'shadow' },
       valueFormatter: (value) => Number(value).toLocaleString('zh-CN')
     },
     legend: {
@@ -149,7 +322,7 @@ function renderTrend() {
     },
     xAxis: {
       type: 'category',
-      boundaryGap: false,
+      boundaryGap: compare.length === 0,
       data: points.map((point) => chartLabel(point.time)),
       axisLine: { lineStyle: { color: lineColor } },
       axisTick: { show: false },
@@ -164,20 +337,21 @@ function renderTrend() {
       },
       splitLine: { lineStyle: { color: lineColor } }
     },
-    series: SERIES.map((item) => ({
-      name: item.name,
-      type: 'line',
-      stack: 'growth',
-      smooth: true,
-      showSymbol: false,
-      areaStyle: { opacity: 0.18 },
-      lineStyle: { width: 2, color: item.color },
-      itemStyle: { color: item.color },
-      data: points.map((point) => point[item.key])
-    }))
+    series
   }
 
   chart.setOption(option, true)
+  chart.off('click')
+  if (compare.length > 0) {
+    chart.on('click', (params) => {
+      const item = compare[Number(params.seriesIndex ?? -1)]
+      if (item) openVideoById(item.videoId)
+    })
+  } else if (singleVideo.value) {
+    chart.on('click', () => {
+      if (singleVideo.value) openVideoById(singleVideo.value.id)
+    })
+  }
 }
 
 function renderComposition() {
@@ -382,6 +556,11 @@ watch(
   }
 )
 
+watch([metric, compareMode, () => props.videoIds], async () => {
+  await nextTick()
+  renderTrend()
+})
+
 onMounted(async () => {
   await nextTick()
   renderAll()
@@ -403,10 +582,70 @@ onBeforeUnmount(() => {
       <header class="chart-card__head">
         <div class="chart-card__heading">
           <h2 class="chart-card__title">互动增长趋势</h2>
-          <p class="chart-card__hint">{{ windowLabel }} · 每{{ bucketLabel }}新增互动</p>
+          <p class="chart-card__hint">{{ trendHint }}</p>
         </div>
-        <span class="chart-card__badge">+{{ formatCompact(totalGrowth) }}</span>
+        <span class="chart-card__badge" :title="`${metricLabel}增长合计`">
+          +{{ formatCompact(totalGrowth) }}
+        </span>
       </header>
+
+      <div class="chart-card__tools">
+        <div class="seg" role="group" aria-label="指标">
+          <button
+            v-for="option in METRIC_OPTIONS"
+            :key="option.value"
+            type="button"
+            class="seg__item"
+            :class="{ 'is-active': metric === option.value }"
+            :disabled="compareMode && option.value === 'all'"
+            @click="metric = option.value"
+          >
+            {{ option.label }}
+          </button>
+        </div>
+
+        <select
+          v-if="!compareMode"
+          class="trend-select"
+          :value="singleVideoId"
+          aria-label="选择视频"
+          @change="onSingleChange"
+        >
+          <option :value="0">全部视频</option>
+          <option v-for="video in chartVideos" :key="video.id" :value="video.id">
+            {{ shortLabel(videoLabel(video), 24) }}
+          </option>
+        </select>
+
+        <button
+          type="button"
+          class="trend-toggle"
+          :class="{ 'is-on': compareMode }"
+          :disabled="chartVideos.length < 2"
+          @click="toggleCompare"
+        >
+          {{ compareMode ? '退出对比' : '多视频对比' }}
+        </button>
+      </div>
+
+      <div v-if="compareMode" class="compare-list">
+        <label
+          v-for="video in chartVideos"
+          :key="video.id"
+          class="compare-item"
+          :class="{ 'is-on': selectedIds.includes(video.id) }"
+        >
+          <input
+            type="checkbox"
+            :checked="selectedIds.includes(video.id)"
+            :disabled="!selectedIds.includes(video.id) && selectedIds.length >= MAX_COMPARE"
+            @change="toggleCompareVideo(video.id)"
+          />
+          <span>{{ shortLabel(videoLabel(video), 20) }}</span>
+        </label>
+        <p v-if="chartVideos.length === 0" class="compare-empty">暂无视频可选</p>
+      </div>
+
       <div ref="trendEl" class="chart chart--trend"></div>
       <p v-if="!loading && !trendPoints.length" class="chart-card__empty">
         窗口内暂无采集快照
@@ -511,6 +750,130 @@ onBeforeUnmount(() => {
   background: var(--field-bg);
   border-radius: var(--radius-pill);
   font-variant-numeric: tabular-nums;
+}
+
+.chart-card__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  padding: 2px;
+  background: var(--field-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-pill);
+}
+
+.seg__item {
+  padding: 0.1875rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+
+.seg__item:hover:not(:disabled) {
+  color: var(--text);
+}
+
+.seg__item.is-active {
+  color: var(--surface-solid, #ffffff);
+  background: var(--accent);
+}
+
+.seg__item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.trend-select {
+  max-width: 220px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  background: var(--field-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.trend-toggle {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--field-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: color 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.trend-toggle:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.trend-toggle.is-on {
+  color: var(--surface-solid, #ffffff);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.trend-toggle:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.compare-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.compare-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  max-width: 220px;
+  padding: 0.1875rem 0.5rem;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  background: var(--field-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: color 0.16s ease, border-color 0.16s ease;
+}
+
+.compare-item.is-on {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.compare-item input {
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.compare-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compare-empty {
+  margin: 0;
+  font-size: 0.6875rem;
+  color: var(--text-subtle);
 }
 
 .chart {

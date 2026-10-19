@@ -20,6 +20,8 @@ TIMEZONE = ZoneInfo('Asia/Shanghai')
 LOCK_NAME = 'douyin_monitor'
 # 新建 run 到线程拿到命名锁之间的宽限期，超过后未持锁的 running 记录视为僵尸
 STALE_GRACE_SECONDS = 60
+# 快照保留天数，超出部分在每轮采集结束时清理
+SNAPSHOT_RETENTION_DAYS = 90
 
 DEFAULT_CONFIG = {
     'enabled': False,
@@ -327,10 +329,10 @@ def _execute(run_id: int, video_ids=None):
             if not video.title and result.get('desc'):
                 video.title = result['desc'][:255]
 
-        if (index + 1) % 5 == 0:
-            run.success_count = success
-            run.failed_count = failed
-            db.session.commit()
+        # 每条都提交，保证少量视频的采集也能看到进度变化
+        run.success_count = success
+        run.failed_count = failed
+        db.session.commit()
 
     status = 'success'
     if failed and not success:
@@ -353,6 +355,33 @@ def _finish_run(run_id: int, status: str, success: int, failed: int, message: st
     cfg = get_config()
     cfg.next_run_at = _next_run_naive(cfg, base=datetime.now(timezone.utc))
     db.session.commit()
+
+    try:
+        purge_old_snapshots()
+    except Exception:  # noqa: BLE001
+        db.session.rollback()
+
+
+def purge_old_snapshots(days: int = SNAPSHOT_RETENTION_DAYS) -> int:
+    """删除超过保留期的快照，控制表体积。返回删除条数。"""
+    cutoff = datetime.utcnow() - timedelta(days=days)
+    deleted = DouyinVideoSnapshot.query.filter(
+        DouyinVideoSnapshot.captured_at < cutoff
+    ).delete(synchronize_session=False)
+    if deleted:
+        db.session.commit()
+    return deleted
+
+
+def failed_video_ids() -> list:
+    """返回最近一次采集失败的视频 ID 列表。"""
+    return [
+        row.video_id
+        for row in DouyinVideoLatest.query.filter(
+            DouyinVideoLatest.last_error.isnot(None)
+        ).order_by(DouyinVideoLatest.video_id).all()
+    ]
+
 
 
 # ==================== 序列化 ====================

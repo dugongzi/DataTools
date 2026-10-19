@@ -1,5 +1,6 @@
 import {
   DouyinAuthorRank,
+  DouyinChartVideo,
   DouyinCharts,
   DouyinGrowth,
   DouyinGrowthTotals,
@@ -7,6 +8,7 @@ import {
   DouyinSnapshot,
   DouyinTotals,
   DouyinTrendPoint,
+  DouyinTrendSeries,
   DouyinVideo,
   DouyinVideoStats
 } from '@/core/types/entities/douyin_video.entity'
@@ -160,6 +162,21 @@ export interface DouyinTrendJson {
   points: DouyinTrendPointJson[]
 }
 
+export interface DouyinTrendSeriesJson {
+  video_id: number
+  title: string | null
+  author: string | null
+  bucket_seconds: number
+  points: DouyinTrendPointJson[]
+}
+
+export interface DouyinChartVideoJson {
+  id: number
+  url: string
+  title: string | null
+  author: string | null
+}
+
 export interface DouyinAuthorRankJson {
   author: string
   interaction: number
@@ -168,6 +185,8 @@ export interface DouyinAuthorRankJson {
 export interface DouyinChartsJson {
   window: string
   trend: DouyinTrendJson
+  trends?: DouyinTrendSeriesJson[]
+  videos?: DouyinChartVideoJson[]
   composition: DouyinTotalsJson
   top_videos: DouyinVideoJson[]
   authors: DouyinAuthorRankJson[]
@@ -679,6 +698,57 @@ export class DouyinAuthorRankDto {
   }
 }
 
+export class DouyinTrendSeriesDto {
+  video_id: number
+  title: string | null
+  author: string | null
+  bucket_seconds: number
+  points: DouyinTrendPointDto[]
+
+  constructor(json: DouyinTrendSeriesJson) {
+    this.video_id = json.video_id
+    this.title = json.title ?? null
+    this.author = json.author ?? null
+    this.bucket_seconds = json.bucket_seconds ?? 0
+    this.points = (json.points ?? []).map((item) => DouyinTrendPointDto.fromJson(item))
+  }
+
+  static fromJson(json: DouyinTrendSeriesJson): DouyinTrendSeriesDto {
+    return new DouyinTrendSeriesDto(json)
+  }
+
+  toEntity(): DouyinTrendSeries {
+    return new DouyinTrendSeries(
+      this.video_id,
+      this.title,
+      this.author,
+      this.points.map((dto) => dto.toEntity())
+    )
+  }
+}
+
+export class DouyinChartVideoDto {
+  id: number
+  url: string
+  title: string | null
+  author: string | null
+
+  constructor(json: DouyinChartVideoJson) {
+    this.id = json.id
+    this.url = json.url
+    this.title = json.title ?? null
+    this.author = json.author ?? null
+  }
+
+  static fromJson(json: DouyinChartVideoJson): DouyinChartVideoDto {
+    return new DouyinChartVideoDto(json)
+  }
+
+  toEntity(): DouyinChartVideo {
+    return new DouyinChartVideo(this.id, this.url, this.title, this.author)
+  }
+}
+
 export class DouyinChartsDto {
   window: string
   bucket_seconds: number
@@ -686,6 +756,8 @@ export class DouyinChartsDto {
   composition: DouyinTotalsDto
   top_videos: DouyinVideoDto[]
   authors: DouyinAuthorRankDto[]
+  trends: DouyinTrendSeriesDto[]
+  videos: DouyinChartVideoDto[]
 
   constructor(json: DouyinChartsJson) {
     this.window = json.window
@@ -694,6 +766,8 @@ export class DouyinChartsDto {
     this.composition = DouyinTotalsDto.fromJson(json.composition)
     this.top_videos = (json.top_videos ?? []).map((item) => DouyinVideoDto.fromJson(item))
     this.authors = (json.authors ?? []).map((item) => DouyinAuthorRankDto.fromJson(item))
+    this.trends = (json.trends ?? []).map((item) => DouyinTrendSeriesDto.fromJson(item))
+    this.videos = (json.videos ?? []).map((item) => DouyinChartVideoDto.fromJson(item))
   }
 
   static fromJson(json: DouyinChartsJson): DouyinChartsDto {
@@ -707,7 +781,9 @@ export class DouyinChartsDto {
       this.trend.map((dto) => dto.toEntity()),
       this.composition.toEntity(),
       this.top_videos.map((dto) => dto.toEntity()),
-      this.authors.map((dto) => dto.toEntity())
+      this.authors.map((dto) => dto.toEntity()),
+      this.trends.map((dto) => dto.toEntity()),
+      this.videos.map((dto) => dto.toEntity())
     )
   }
 }

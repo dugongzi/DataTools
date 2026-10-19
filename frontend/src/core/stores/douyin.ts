@@ -2,6 +2,10 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { douyinApi } from '@/core/api/douyin_api.ts'
 import { DouyinCharts, DouyinOverview, DouyinVideo } from '@/core/types/entities/douyin_video.entity'
+import type {
+  DouyinMonitorRun,
+  DouyinMonitorStatus
+} from '@/core/types/entities/douyin_monitor_config.entity'
 import {
   DouyinVideoDto,
   type DouyinSortField,
@@ -9,6 +13,7 @@ import {
   type DouyinStatusFilter,
   type DouyinWindow
 } from '@/core/types/dto/douyin_video.dto'
+
 
 export const DEFAULT_PER_PAGE = 20
 
@@ -32,6 +37,11 @@ export const useDouyinStore = defineStore('douyin', () => {
 
   const charts = ref<DouyinCharts | null>(null)
   const chartsLoading = ref(false)
+  const chartVideoIds = ref<number[]>([])
+
+  const monitorStatus = ref<DouyinMonitorStatus | null>(null)
+  const runs = ref<DouyinMonitorRun[]>([])
+  const runsLoading = ref(false)
 
   async function fetchVideos(targetPage = page.value) {
     loading.value = true
@@ -51,7 +61,7 @@ export const useDouyinStore = defineStore('douyin', () => {
       total.value = result.total
       pages.value = result.pages
     } catch (e) {
-      error.value = 'Failed to fetch douyin videos'
+      error.value = '加载视频列表失败'
       console.error(e)
     } finally {
       loading.value = false
@@ -72,12 +82,22 @@ export const useDouyinStore = defineStore('douyin', () => {
   async function fetchCharts() {
     chartsLoading.value = true
     try {
-      charts.value = await douyinApi.getCharts(window.value)
+      charts.value = await douyinApi.getCharts(window.value, 8, chartVideoIds.value)
     } catch (e) {
       console.error(e)
     } finally {
       chartsLoading.value = false
     }
+  }
+
+  async function setChartVideoIds(ids: number[]) {
+    const next = Array.from(new Set(ids)).slice(0, 5)
+    const same =
+      next.length === chartVideoIds.value.length &&
+      next.every((id, index) => id === chartVideoIds.value[index])
+    if (same) return
+    chartVideoIds.value = next
+    await fetchCharts()
   }
 
   async function applyFilters() {
@@ -106,7 +126,7 @@ export const useDouyinStore = defineStore('douyin', () => {
       const created = result.created.map((dto) => dto.toEntity())
       return { created, skipped: result.skipped, runId: result.runId }
     } catch (e) {
-      error.value = 'Failed to import douyin videos'
+      error.value = '导入视频失败'
       console.error(e)
       throw e
     } finally {
@@ -121,17 +141,69 @@ export const useDouyinStore = defineStore('douyin', () => {
       await douyinApi.delete(id)
       videos.value = videos.value.filter((v) => v.id !== id)
       total.value = Math.max(0, total.value - 1)
+      if (chartVideoIds.value.includes(id)) {
+        chartVideoIds.value = chartVideoIds.value.filter((item) => item !== id)
+        await fetchCharts()
+      }
       // If the current page emptied, step back and refetch.
       if (videos.value.length === 0 && page.value > 1) {
         await fetchVideos(page.value - 1)
       }
     } catch (e) {
-      error.value = 'Failed to delete douyin video'
+      error.value = '删除视频失败'
       console.error(e)
       throw e
     } finally {
       loading.value = false
     }
+  }
+
+  async function fetchMonitorStatus() {
+    try {
+      monitorStatus.value = await douyinApi.getMonitorStatus()
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  async function fetchRuns(limit = 20) {
+    runsLoading.value = true
+    try {
+      runs.value = await douyinApi.getRuns(limit)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      runsLoading.value = false
+    }
+  }
+
+  async function retryFailed() {
+    const result = await douyinApi.retryFailed()
+    await fetchMonitorStatus()
+    return result
+  }
+
+  async function exportVideos() {
+    await douyinApi.exportVideos({
+      q: keyword.value.trim(),
+      status: status.value,
+      sort: sort.value,
+      order: order.value,
+      window: window.value
+    })
+  }
+
+  async function exportSnapshots(videoId: number) {
+    await douyinApi.exportSnapshots(videoId, window.value)
+  }
+
+  async function refreshData(targetPage = page.value) {
+    await Promise.all([
+      fetchVideos(targetPage),
+      fetchOverview(),
+      fetchCharts(),
+      fetchMonitorStatus()
+    ])
   }
 
   return {
@@ -151,9 +223,20 @@ export const useDouyinStore = defineStore('douyin', () => {
     overviewLoading,
     charts,
     chartsLoading,
+    chartVideoIds,
+    monitorStatus,
+    runs,
+    runsLoading,
     fetchVideos,
     fetchOverview,
     fetchCharts,
+    setChartVideoIds,
+    fetchMonitorStatus,
+    fetchRuns,
+    retryFailed,
+    exportVideos,
+    exportSnapshots,
+    refreshData,
     applyFilters,
     setWindow,
     goToPage,

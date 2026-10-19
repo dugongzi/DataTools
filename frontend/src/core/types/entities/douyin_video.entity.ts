@@ -201,6 +201,39 @@ export class DouyinAuthorRank {
   }
 }
 
+export class DouyinTrendSeries {
+  videoId: number
+  title: string | null
+  author: string | null
+  points: DouyinTrendPoint[]
+
+  constructor(
+    videoId: number,
+    title: string | null,
+    author: string | null,
+    points: DouyinTrendPoint[] = []
+  ) {
+    this.videoId = videoId
+    this.title = title
+    this.author = author
+    this.points = points
+  }
+}
+
+export class DouyinChartVideo {
+  id: number
+  url: string
+  title: string | null
+  author: string | null
+
+  constructor(id: number, url: string, title: string | null, author: string | null) {
+    this.id = id
+    this.url = url
+    this.title = title
+    this.author = author
+  }
+}
+
 export class DouyinCharts {
   window: string
   bucketSeconds: number
@@ -208,6 +241,8 @@ export class DouyinCharts {
   composition: DouyinTotals
   topVideos: DouyinVideo[]
   authors: DouyinAuthorRank[]
+  trends: DouyinTrendSeries[]
+  videos: DouyinChartVideo[]
 
   constructor(
     window: string,
@@ -215,7 +250,9 @@ export class DouyinCharts {
     trend: DouyinTrendPoint[],
     composition: DouyinTotals,
     topVideos: DouyinVideo[],
-    authors: DouyinAuthorRank[]
+    authors: DouyinAuthorRank[],
+    trends: DouyinTrendSeries[] = [],
+    videos: DouyinChartVideo[] = []
   ) {
     this.window = window
     this.bucketSeconds = bucketSeconds
@@ -223,6 +260,8 @@ export class DouyinCharts {
     this.composition = composition
     this.topVideos = topVideos
     this.authors = authors
+    this.trends = trends
+    this.videos = videos
   }
 }
 
