@@ -53,6 +53,9 @@ COMMON_PARAMS = {
     'round_trip_time': '50',
 }
 
+# 这些资源对执行签名 JS 没有作用，1 核机器上会严重拖慢渲染进程
+BLOCKED_RESOURCE_TYPES = {'image', 'media', 'font'}
+
 ID_PATTERNS = [
     re.compile(r'/video/(\d{15,25})'),
     re.compile(r'/note/(\d{15,25})'),
@@ -75,6 +78,10 @@ def extract_aweme_id(url: str) -> Optional[str]:
             return match.group(1)
 
     return None
+
+
+class PageUnresponsive(RuntimeError):
+    """页面渲染进程无响应：evaluate 在限定时间内没有返回。"""
 
 
 class DouyinFetcher:
@@ -167,7 +174,16 @@ class DouyinFetcher:
                 pw.chromium.launch(
                     headless=self.headless,
                     executable_path=self.executable_path,
-                    args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+                    args=[
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        '--disable-dev-shm-usage',
+                        '--disable-gpu',
+                        '--disable-software-rasterizer',
+                        '--mute-audio',
+                        '--autoplay-policy=user-gesture-required',
+                        '--blink-settings=imagesEnabled=false',
+                    ],
                 ),
                 timeout=60,
             )
@@ -178,6 +194,7 @@ class DouyinFetcher:
                 viewport={'width': 800, 'height': 600},
                 locale='zh-CN',
             ), timeout=30)
+            await context.route('**/*', self._block_heavy)
 
             try:
                 pages = []
@@ -240,6 +257,14 @@ class DouyinFetcher:
         logger.info('本批采集结束：%s 条', len(urls))
         return [item or {'url': urls[i], 'error': 'unknown'} for i, item in enumerate(results)]
 
+    @staticmethod
+    async def _block_heavy(route):
+        """拦截图片/音视频/字体，避免 1 核机器被渲染任务拖死。"""
+        if route.request.resource_type in BLOCKED_RESOURCE_TYPES:
+            await route.abort()
+        else:
+            await route.continue_()
+
     async def _renew_page(self, context, page):
         """页面卡死时销毁并重建，避免后续任务继续复用坏页面。"""
         try:
@@ -281,7 +306,18 @@ class DouyinFetcher:
         if direct:
             return direct
 
-        # 短链：浏览器打开后从 location 拿
+        # 短链优先用 HTTP 直接读 302 Location，避免浏览器加载视频页（会自动播放，极耗 CPU）
+        try:
+            resp = await asyncio.wait_for(
+                page.context.request.get(url, max_redirects=0), timeout=15
+            )
+            aweme_id = extract_aweme_id(resp.headers.get('location') or '')
+            if aweme_id:
+                return aweme_id
+        except Exception:  # noqa: BLE001
+            pass
+
+        # 兜底：浏览器打开后从 location 拿
         try:
             await page.goto(url, wait_until='domcontentloaded', timeout=30000)
         except Exception:
@@ -311,19 +347,26 @@ class DouyinFetcher:
         attempts = self.retry_times + 1
 
         for attempt in range(1, attempts + 1):
-            res = await page.evaluate(
-                """(u) => new Promise((resolve) => {
-                    const xhr = new XMLHttpRequest();
-                    xhr.open('GET', u, true);
-                    xhr.withCredentials = true;
-                    xhr.timeout = 20000;
-                    xhr.onload = () => resolve({ status: xhr.status, text: xhr.responseText });
-                    xhr.onerror = () => resolve({ status: -1, text: '' });
-                    xhr.ontimeout = () => resolve({ status: -2, text: '' });
-                    xhr.send();
-                })""",
-                url,
-            )
+            # evaluate 自身没有超时参数，渲染进程卡住时 Promise 永远不会 resolve
+            try:
+                res = await asyncio.wait_for(
+                    page.evaluate(
+                        """(u) => new Promise((resolve) => {
+                            const xhr = new XMLHttpRequest();
+                            xhr.open('GET', u, true);
+                            xhr.withCredentials = true;
+                            xhr.timeout = 20000;
+                            xhr.onload = () => resolve({ status: xhr.status, text: xhr.responseText });
+                            xhr.onerror = () => resolve({ status: -1, text: '' });
+                            xhr.ontimeout = () => resolve({ status: -2, text: '' });
+                            xhr.send();
+                        })""",
+                        url,
+                    ),
+                    timeout=25,
+                )
+            except asyncio.TimeoutError:
+                raise PageUnresponsive('页面无响应（渲染进程卡死）')
 
             text = (res or {}).get('text') or ''
             if (res or {}).get('status') == 200 and text.strip().startswith('{'):
@@ -352,6 +395,7 @@ class DouyinFetcher:
             api_url = f'{HOME}aweme/v1/web/aweme/detail/?{urlencode(params)}'
 
             request_timeout = (self.retry_times + 1) * 25 + self.retry_times * self.retry_delay_seconds
+            logger.info('请求详情前页面地址：%s', page.url)
             data = await asyncio.wait_for(self._request_json(page, api_url), timeout=request_timeout)
             if data.get('status_code') != 0:
                 return {
@@ -377,6 +421,8 @@ class DouyinFetcher:
                     'play_count': statistics.get('play_count', 0),
                 },
             }
+        except PageUnresponsive as e:
+            return {'url': url, 'error': str(e), 'reset_page': True}
         except asyncio.TimeoutError:
             return {'url': url, 'error': '采集步骤超时', 'reset_page': True}
         except Exception as e:
