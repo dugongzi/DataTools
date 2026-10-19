@@ -44,6 +44,7 @@ export interface DouyinMonitorRunJson {
   started_at: string | null
   finished_at: string | null
   message: string | null
+  video_ids: number[]
 }
 
 export interface DouyinMonitorStatusJson {
@@ -86,6 +87,7 @@ export class DouyinMonitorRunDto {
   started_at: string | null
   finished_at: string | null
   message: string | null
+  video_ids: number[]
 
   constructor(json: DouyinMonitorRunJson) {
     this.id = json.id
@@ -97,6 +99,7 @@ export class DouyinMonitorRunDto {
     this.started_at = json.started_at
     this.finished_at = json.finished_at
     this.message = json.message
+    this.video_ids = json.video_ids ?? []
   }
 
   static fromJson(json: DouyinMonitorRunJson): DouyinMonitorRunDto {
@@ -113,7 +116,8 @@ export class DouyinMonitorRunDto {
       failed_count: this.failed_count,
       started_at: this.started_at,
       finished_at: this.finished_at,
-      message: this.message
+      message: this.message,
+      video_ids: this.video_ids
     }
   }
 
@@ -127,7 +131,8 @@ export class DouyinMonitorRunDto {
       this.failed_count,
       parseDate(this.started_at),
       parseDate(this.finished_at),
-      this.message
+      this.message,
+      this.video_ids
     )
   }
 }

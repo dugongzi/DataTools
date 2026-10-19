@@ -1,6 +1,7 @@
 from backend.app.models.douyin_monitor import (
     DouyinMonitorConfig,
     DouyinMonitorRun,
+    DouyinMonitorRunTarget,
     DouyinVideoLatest,
     DouyinVideoSnapshot,
 )
@@ -14,4 +15,5 @@ __all__ = [
     'DouyinVideoLatest',
     'DouyinVideoSnapshot',
     'DouyinMonitorRun',
+    'DouyinMonitorRunTarget',
 ]

@@ -10,6 +10,7 @@ from backend.app import db
 from backend.app.models.douyin_monitor import (
     DouyinMonitorConfig,
     DouyinMonitorRun,
+    DouyinMonitorRunTarget,
     DouyinVideoLatest,
     DouyinVideoSnapshot,
 )
@@ -254,6 +255,10 @@ def _execute(run_id: int, video_ids=None):
         videos = DouyinVideo.query.order_by(DouyinVideo.id).all()
 
     run.total = len(videos)
+    DouyinMonitorRunTarget.query.filter_by(run_id=run_id).delete(synchronize_session=False)
+    db.session.add_all([
+        DouyinMonitorRunTarget(run_id=run_id, video_id=video.id) for video in videos
+    ])
     db.session.commit()
 
     if not videos:
@@ -434,6 +439,13 @@ def run_to_dict(run: DouyinMonitorRun):
         'started_at': iso_utc(run.started_at),
         'finished_at': iso_utc(run.finished_at),
         'message': run.message,
+        'video_ids': [
+            row.video_id
+            for row in DouyinMonitorRunTarget.query
+            .filter_by(run_id=run.id)
+            .order_by(DouyinMonitorRunTarget.video_id)
+            .all()
+        ],
     }
 
 

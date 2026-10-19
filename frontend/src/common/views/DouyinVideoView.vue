@@ -320,7 +320,10 @@ function startCollectPolling(runId: number) {
     try {
       const run = await douyinApi.getRun(runId)
       currentRun.value = run
-      if (run.status === 'running') return
+      if (run.status === 'running') {
+        if (run.videoIds.length > 0) collectingIds.value = run.videoIds
+        return
+      }
 
       stopCollectPolling()
       collecting.value = false
@@ -367,6 +370,7 @@ async function startCollect(videoIds?: number[]): Promise<boolean> {
         const status = await douyinApi.getMonitorStatus()
         if (status.currentRun) {
           currentRun.value = status.currentRun
+          collectingIds.value = status.currentRun.videoIds
           startCollectPolling(status.currentRun.id)
           return false
         }
@@ -446,6 +450,7 @@ async function autoRefreshTick() {
   const status = douyinStore.monitorStatus
   if (status?.running && status.currentRun) {
     currentRun.value = status.currentRun
+    collectingIds.value = status.currentRun.videoIds
     startCollectPolling(status.currentRun.id)
   }
 }
@@ -475,6 +480,7 @@ async function load() {
   const status = douyinStore.monitorStatus
   if (status?.running && status.currentRun) {
     currentRun.value = status.currentRun
+    collectingIds.value = status.currentRun.videoIds
     startCollectPolling(status.currentRun.id)
   }
 }

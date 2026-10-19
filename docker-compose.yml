@@ -20,15 +20,18 @@ services:
       retries: 10
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: datatools
+    image: ghcr.io/dugongzi/datatools:latest
     container_name: datatools-app
-    env_file:
-      - .env
     environment:
       FLASK_ENV: production
+      SECRET_KEY: ${SECRET_KEY}
+      ACCESS_TOKEN_MAX_AGE: ${ACCESS_TOKEN_MAX_AGE}
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_ROLE: ${ADMIN_ROLE}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3000:80"
       - "5000:5000"
@@ -40,16 +43,19 @@ services:
       - datatools-network
 
   scheduler:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: datatools
+    image: ghcr.io/dugongzi/datatools:latest
     container_name: datatools-scheduler
     command: ["python", "-m", "backend.scheduler"]
-    env_file:
-      - .env
     environment:
       FLASK_ENV: production
+      SECRET_KEY: ${SECRET_KEY}
+      ACCESS_TOKEN_MAX_AGE: ${ACCESS_TOKEN_MAX_AGE}
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_ROLE: ${ADMIN_ROLE}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     depends_on:
       mysql:
         condition: service_healthy

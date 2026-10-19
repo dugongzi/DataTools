@@ -55,6 +55,7 @@ export class DouyinMonitorRun {
   startedAt: Date | null
   finishedAt: Date | null
   message: string | null
+  videoIds: number[]
 
   constructor(
     id: number,
@@ -65,7 +66,8 @@ export class DouyinMonitorRun {
     failedCount: number,
     startedAt: Date | null,
     finishedAt: Date | null,
-    message: string | null
+    message: string | null,
+    videoIds: number[]
   ) {
     this.id = id
     this.triggerType = triggerType
@@ -76,6 +78,7 @@ export class DouyinMonitorRun {
     this.startedAt = startedAt
     this.finishedAt = finishedAt
     this.message = message
+    this.videoIds = videoIds
   }
 }
 

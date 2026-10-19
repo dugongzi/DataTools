@@ -79,3 +79,20 @@ class DouyinMonitorRun(db.Model):
     started_at = db.Column(db.DateTime, default=datetime.utcnow)
     finished_at = db.Column(db.DateTime)
     message = db.Column(db.String(255))
+
+
+class DouyinMonitorRunTarget(db.Model):
+    """每轮采集的目标视频，供前端标记哪些行正在采集"""
+
+    __tablename__ = 'douyin_monitor_run_targets'
+
+    run_id = db.Column(
+        db.Integer,
+        db.ForeignKey('douyin_monitor_runs.id', ondelete='CASCADE'),
+        primary_key=True,
+    )
+    video_id = db.Column(
+        db.Integer,
+        db.ForeignKey('douyin_videos.id', ondelete='CASCADE'),
+        primary_key=True,
+    )
