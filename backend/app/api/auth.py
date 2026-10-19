@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from functools import wraps
 
 import jwt
-from flask import current_app, jsonify, request
+from flask import current_app, g, jsonify, request
 
 from backend.app.api import api_bp
 from backend.app.models.user import User
@@ -42,6 +42,7 @@ def require_auth(view):
         if not isinstance(claims, dict) or not claims.get('sub'):
             return jsonify({'error': 'Invalid token claims'}), 401
 
+        g.username = claims.get('sub')
         return view(*args, **kwargs)
 
     return wrapped

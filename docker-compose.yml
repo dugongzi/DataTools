@@ -52,6 +52,23 @@ services:
     networks:
       - datatools-network
 
+  scheduler:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: datatools-scheduler
+    command: ["python", "-m", "backend.scheduler"]
+    env_file:
+      - .env
+    environment:
+      FLASK_ENV: production
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - datatools-network
+
 volumes:
   mysql-data:
     driver: local

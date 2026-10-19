@@ -1,12 +1,101 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { douyinApi } from '@/core/api/douyin_api'
 import { useDouyinStore } from '@/core/stores/douyin'
+import DouyinCharts from '@/common/components/DouyinCharts.vue'
+import DouyinOverview from '@/common/components/DouyinOverview.vue'
+import DouyinVideoDrawer from '@/common/components/DouyinVideoDrawer.vue'
+import type { DouyinVideo } from '@/core/types/entities/douyin_video.entity'
+import type {
+  DouyinSortField,
+  DouyinStatusFilter,
+  DouyinWindow
+} from '@/core/types/dto/douyin_video.dto'
 
 const douyinStore = useDouyinStore()
+
+const STATUS_OPTIONS: { value: DouyinStatusFilter; label: string }[] = [
+  { value: 'all', label: '全部状态' },
+  { value: 'captured', label: '已采集' },
+  { value: 'failed', label: '采集失败' },
+  { value: 'pending', label: '待采集' }
+]
+
+const SORT_GROUPS: {
+  key: string
+  label: string
+  options: { value: DouyinSortField; label: string }[]
+}[] = [
+  {
+    key: 'time',
+    label: '时间',
+    options: [
+      { value: 'created_at', label: '导入时间' },
+      { value: 'captured_at', label: '采集时间' }
+    ]
+  },
+  {
+    key: 'total',
+    label: '累计互动',
+    options: [
+      { value: 'digg', label: '点赞数' },
+      { value: 'comment', label: '评论数' },
+      { value: 'share', label: '分享数' },
+      { value: 'collect', label: '收藏数' },
+      { value: 'interaction', label: '总互动' }
+    ]
+  },
+  {
+    key: 'growth',
+    label: '窗口内增长',
+    options: [
+      { value: 'growth', label: '总互动增长' },
+      { value: 'growth_digg', label: '点赞增长' },
+      { value: 'growth_comment', label: '评论增长' },
+      { value: 'growth_share', label: '分享增长' },
+      { value: 'growth_collect', label: '收藏增长' },
+      { value: 'growth_rate', label: '增长率' }
+    ]
+  }
+]
+
+const sortGroupKey = computed<string>({
+  get: () =>
+    SORT_GROUPS.find((group) =>
+      group.options.some((option) => option.value === douyinStore.sort)
+    )?.key ?? 'time',
+  set: (key: string) => {
+    const group = SORT_GROUPS.find((item) => item.key === key)
+    const first = group?.options[0]
+    if (!first) return
+    douyinStore.sort = first.value
+    void applyFilters()
+  }
+})
+
+const sortOptions = computed(
+  () => SORT_GROUPS.find((group) => group.key === sortGroupKey.value)?.options ?? []
+)
+
+const WINDOW_OPTIONS: { value: DouyinWindow; label: string }[] = [
+  { value: '1h', label: '1 小时' },
+  { value: '6h', label: '6 小时' },
+  { value: '24h', label: '24 小时' },
+  { value: '7d', label: '7 天' },
+  { value: 'all', label: '全部' }
+]
+
+const drawerVideo = ref<DouyinVideo | null>(null)
+
+const menuVideoId = ref<number | null>(null)
+const menuPos = ref({ top: 0, left: 0 })
 
 const pageLoading = ref(true)
 const loadError = ref<string | null>(null)
 const busyId = ref<number | null>(null)
+const collecting = ref(false)
+let collectTimer: ReturnType<typeof setInterval> | undefined
+const COLLECT_POLL_TIMEOUT_MS = 10 * 60 * 1000
 
 const shareText = ref('')
 const importing = ref(false)
@@ -34,7 +123,7 @@ function flash(kind: 'success' | 'error', text: string) {
   }, 4000)
 }
 
-function formatDate(value: Date) {
+function formatDate(value: Date | null) {
   if (!(value instanceof Date) || Number.isNaN(value.getTime())) return '—'
   return value.toLocaleString('zh-CN', {
     year: 'numeric',
@@ -45,12 +134,162 @@ function formatDate(value: Date) {
   })
 }
 
+function formatCount(value?: number | null) {
+  if (value === undefined || value === null) return '—'
+  return value.toLocaleString('zh-CN')
+}
+
+async function applyFilters() {
+  await douyinStore.applyFilters()
+  loadError.value = douyinStore.error
+}
+
+async function toggleOrder() {
+  douyinStore.order = douyinStore.order === 'desc' ? 'asc' : 'desc'
+  await applyFilters()
+}
+
+async function selectWindow(next: DouyinWindow) {
+  await douyinStore.setWindow(next)
+}
+
+function openDrawer(video: DouyinVideo) {
+  drawerVideo.value = video
+}
+
+const MENU_WIDTH = 168
+const MENU_HEIGHT = 96
+
+function closeMenu() {
+  menuVideoId.value = null
+}
+
+function toggleMenu(event: MouseEvent, video: DouyinVideo) {
+  if (menuVideoId.value === video.id) {
+    closeMenu()
+    return
+  }
+
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  const left = Math.max(8, Math.min(rect.left, window.innerWidth - MENU_WIDTH - 8))
+  const top =
+    rect.bottom + 6 + MENU_HEIGHT > window.innerHeight
+      ? Math.max(8, rect.top - MENU_HEIGHT - 6)
+      : rect.bottom + 6
+  menuPos.value = { top, left }
+  menuVideoId.value = video.id
+}
+
+function onGlobalKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') closeMenu()
+}
+
+function stopCollectPolling() {
+  if (collectTimer) {
+    clearInterval(collectTimer)
+    collectTimer = undefined
+  }
+}
+
+function startCollectPolling(runId: number) {
+  stopCollectPolling()
+  collecting.value = true
+  const startedAt = Date.now()
+  collectTimer = setInterval(async () => {
+    if (Date.now() - startedAt > COLLECT_POLL_TIMEOUT_MS) {
+      stopCollectPolling()
+      collecting.value = false
+      flash('error', '采集状态同步超时，请刷新页面查看结果')
+      return
+    }
+    try {
+      const run = await douyinApi.getRun(runId)
+      if (run.status === 'running') return
+
+      stopCollectPolling()
+      collecting.value = false
+      await Promise.all([
+        douyinStore.fetchVideos(douyinStore.page),
+        douyinStore.fetchOverview(),
+        douyinStore.fetchCharts()
+      ])
+      loadError.value = douyinStore.error
+
+      const kind = run.status === 'failed' ? 'error' : 'success'
+      flash(kind, `采集完成：成功 ${run.successCount} 条，失败 ${run.failedCount} 条`)
+    } catch {
+      // 轮询期间出现瞬时错误时继续等待，不中断采集
+    }
+  }, 2000)
+}
+
+async function startCollect(videoIds?: number[]) {
+  try {
+    const { runId, run } = await douyinApi.triggerRun(videoIds)
+    flash(
+      'success',
+      videoIds
+        ? `已启动单条采集（#${runId}）`
+        : `已启动采集（#${runId}），共 ${run.total} 条视频`
+    )
+    startCollectPolling(runId)
+  } catch (e) {
+    const code = (e as { response?: { status?: number } })?.response?.status
+    if (code === 409) {
+      flash('error', '已有采集任务在运行，正在同步进度')
+      try {
+        const status = await douyinApi.getMonitorStatus()
+        if (status.currentRun) {
+          startCollectPolling(status.currentRun.id)
+          return
+        }
+      } catch {
+        // 忽略同步失败
+      }
+    } else {
+      flash('error', '启动采集失败，请稍后重试')
+    }
+  }
+}
+
+async function refreshAll() {
+  if (collecting.value) return
+  if (!douyinStore.videos.length) {
+    flash('error', '监控列表为空，请先添加视频')
+    return
+  }
+  await startCollect()
+}
+
+async function collectVideo(video: DouyinVideo) {
+  closeMenu()
+  if (collecting.value) {
+    flash('error', '已有采集任务在运行')
+    return
+  }
+  await startCollect([video.id])
+}
+
 async function load() {
   pageLoading.value = true
   loadError.value = null
-  await douyinStore.fetchVideos(1)
+  await Promise.all([
+    douyinStore.fetchVideos(1),
+    douyinStore.fetchOverview(),
+    douyinStore.fetchCharts()
+  ])
   loadError.value = douyinStore.error
   pageLoading.value = false
+
+  if (loadError.value) return
+  try {
+    const status = await douyinApi.getMonitorStatus()
+    if (status.running && status.currentRun) {
+      startCollectPolling(status.currentRun.id)
+    }
+  } catch {
+    // 状态接口不可用时不影响列表展示
+  }
 }
 
 function openModal() {
@@ -90,14 +329,19 @@ async function submitImport() {
 
   importing.value = true
   try {
-    const { created, skipped } = await douyinStore.importVideos(text)
+    const { created, skipped, runId } = await douyinStore.importVideos(text)
     if (created.length > 0) {
       const extra = skipped.length > 0 ? `，跳过 ${skipped.length} 条已存在` : ''
       flash('success', `已导入 ${created.length} 条视频${extra}`)
       modalOpen.value = false
       shareText.value = ''
-      await douyinStore.fetchVideos(1)
+      await Promise.all([
+        douyinStore.fetchVideos(1),
+        douyinStore.fetchOverview(),
+        douyinStore.fetchCharts()
+      ])
       loadError.value = douyinStore.error
+      if (runId) startCollectPolling(runId)
     } else {
       flash('error', `未新增视频${skipped.length > 0 ? `，${skipped.length} 条已存在` : ''}`)
     }
@@ -109,12 +353,14 @@ async function submitImport() {
 }
 
 async function removeVideo(id: number, label: string) {
+  closeMenu()
   if (busyId.value !== null) return
   if (!window.confirm(`确定删除「${label}」？此操作不可撤销。`)) return
 
   busyId.value = id
   try {
     await douyinStore.deleteVideo(id)
+    await Promise.all([douyinStore.fetchOverview(), douyinStore.fetchCharts()])
     flash('success', '已删除该视频')
   } catch {
     flash('error', '删除失败，请稍后重试')
@@ -127,10 +373,19 @@ function videoLabel(author: string | null, title: string | null) {
   return title || author || '未命名视频'
 }
 
-onMounted(load)
+onMounted(() => {
+  document.addEventListener('click', closeMenu)
+  document.addEventListener('keydown', onGlobalKeydown)
+  window.addEventListener('scroll', closeMenu, true)
+  void load()
+})
 
 onBeforeUnmount(() => {
+  document.removeEventListener('click', closeMenu)
+  document.removeEventListener('keydown', onGlobalKeydown)
+  window.removeEventListener('scroll', closeMenu, true)
   clearTimeout(noticeTimer)
+  stopCollectPolling()
 })
 </script>
 
@@ -145,6 +400,14 @@ onBeforeUnmount(() => {
       <div class="page__actions">
         <button class="btn btn--quiet" type="button" :disabled="pageLoading" @click="load">
           刷新
+        </button>
+        <button
+          class="btn btn--quiet"
+          type="button"
+          :disabled="collecting || pageLoading"
+          @click="refreshAll"
+        >
+          {{ collecting ? '采集中…' : '刷新数据' }}
         </button>
         <button class="btn btn--primary btn--add" type="button" @click="openModal">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -169,6 +432,95 @@ onBeforeUnmount(() => {
     >
       {{ notice.text }}
     </p>
+
+    <DouyinOverview
+      :overview="douyinStore.overview"
+      :loading="douyinStore.overviewLoading"
+      :window="douyinStore.window"
+      @open="openDrawer"
+    />
+
+    <DouyinCharts
+      :charts="douyinStore.charts"
+      :loading="douyinStore.chartsLoading"
+      :window="douyinStore.window"
+      @open="openDrawer"
+    />
+
+    <section class="panel toolbar">
+      <div class="toolbar__row">
+        <div class="toolbar__search">
+          <input
+            v-model="douyinStore.keyword"
+            class="toolbar__input"
+            type="search"
+            placeholder="搜索标题或作者"
+            spellcheck="false"
+            @keyup.enter="applyFilters"
+          />
+          <button class="btn btn--quiet" type="button" @click="applyFilters">查询</button>
+        </div>
+
+        <div class="toolbar__group">
+          <label class="toolbar__label" for="douyin-status">状态</label>
+          <select
+            id="douyin-status"
+            v-model="douyinStore.status"
+            class="toolbar__select"
+            @change="applyFilters"
+          >
+            <option v-for="option in STATUS_OPTIONS" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="toolbar__group">
+          <label class="toolbar__label" for="douyin-sort-group">排序</label>
+          <select
+            id="douyin-sort-group"
+            v-model="sortGroupKey"
+            class="toolbar__select"
+            aria-label="排序维度"
+          >
+            <option v-for="group in SORT_GROUPS" :key="group.key" :value="group.key">
+              {{ group.label }}
+            </option>
+          </select>
+          <select
+            id="douyin-sort"
+            v-model="douyinStore.sort"
+            class="toolbar__select"
+            aria-label="排序指标"
+            @change="applyFilters"
+          >
+            <option v-for="option in sortOptions" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+          <button class="btn btn--quiet btn--order" type="button" @click="toggleOrder">
+            {{ douyinStore.order === 'desc' ? '降序 ↓' : '升序 ↑' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="toolbar__row toolbar__row--windows">
+        <span class="toolbar__label">时间窗口</span>
+        <div class="segmented" role="group" aria-label="时间窗口">
+          <button
+            v-for="option in WINDOW_OPTIONS"
+            :key="option.value"
+            class="segmented__item"
+            :class="{ 'segmented__item--active': douyinStore.window === option.value }"
+            type="button"
+            @click="selectWindow(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        </div>
+        <span class="toolbar__hint">增长值 = 窗口内最后一次采集 − 第一次采集</span>
+      </div>
+    </section>
 
     <section class="panel" :aria-busy="pageLoading">
       <div v-if="pageLoading" class="skeleton" aria-hidden="true">
@@ -217,37 +569,104 @@ onBeforeUnmount(() => {
           <table class="table">
             <thead>
               <tr>
+                <th scope="col" class="table__menu-head" aria-label="操作菜单"></th>
                 <th scope="col">视频</th>
                 <th scope="col">作者</th>
+                <th scope="col" class="table__num">点赞</th>
+                <th scope="col" class="table__num">评论</th>
+                <th scope="col" class="table__num">分享</th>
+                <th scope="col" class="table__num">收藏</th>
+                <th scope="col" class="table__num">增长</th>
+                <th scope="col">采集时间</th>
                 <th scope="col">链接</th>
                 <th scope="col">导入时间</th>
-                <th scope="col" class="table__actions-head">操作</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="video in douyinStore.videos" :key="video.id">
+                <td class="cell-menu">
+                  <button
+                    class="menu-trigger"
+                    type="button"
+                    aria-haspopup="menu"
+                    :aria-expanded="menuVideoId === video.id"
+                    :aria-label="`操作：${videoLabel(video.author, video.title)}`"
+                    @click.stop="toggleMenu($event, video)"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="M12 6.5h.01M12 12h.01M12 17.5h.01"
+                        stroke="currentColor"
+                        stroke-width="2.4"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </button>
+
+                  <Teleport to="body">
+                    <div
+                      v-if="menuVideoId === video.id"
+                      class="menu"
+                      role="menu"
+                      :style="{ top: `${menuPos.top}px`, left: `${menuPos.left}px` }"
+                      @click.stop
+                    >
+                      <button
+                        class="menu__item"
+                        type="button"
+                        role="menuitem"
+                        :disabled="collecting || busyId !== null"
+                        @click="collectVideo(video)"
+                      >
+                        {{ collecting ? '已有采集任务在运行' : '单条采集' }}
+                      </button>
+                      <button
+                        class="menu__item menu__item--danger"
+                        type="button"
+                        role="menuitem"
+                        :disabled="busyId !== null"
+                        @click="removeVideo(video.id, videoLabel(video.author, video.title))"
+                      >
+                        {{ busyId === video.id ? '删除中…' : '删除' }}
+                      </button>
+                    </div>
+                  </Teleport>
+                </td>
                 <td data-label="视频">
-                  <span class="cell-title" :title="video.title ?? undefined">
+                  <button class="cell-title cell-title--button" type="button" @click="openDrawer(video)">
                     {{ videoLabel(video.author, video.title) }}
-                  </span>
+                  </button>
                 </td>
                 <td data-label="作者" class="cell-author">{{ video.author || '—' }}</td>
+                <td data-label="点赞" class="cell-num">{{ formatCount(video.latest?.diggCount) }}</td>
+                <td data-label="评论" class="cell-num">{{ formatCount(video.latest?.commentCount) }}</td>
+                <td data-label="分享" class="cell-num">{{ formatCount(video.latest?.shareCount) }}</td>
+                <td data-label="收藏" class="cell-num">{{ formatCount(video.latest?.collectCount) }}</td>
+                <td data-label="增长" class="cell-num cell-growth">
+                  <template v-if="video.growth?.available">
+                    +{{ formatCount(video.growth.interaction) }}
+                  </template>
+                  <template v-else>—</template>
+                </td>
+                <td data-label="采集时间" class="cell-date">
+                  <template v-if="video.latest">
+                    <span
+                      v-if="video.latest.lastError"
+                      class="cell-error"
+                      :title="video.latest.lastError"
+                    >
+                      采集失败
+                    </span>
+                    <template v-else>{{ formatDate(video.latest.capturedAt) }}</template>
+                  </template>
+                  <template v-else>—</template>
+                </td>
                 <td data-label="链接">
                   <a class="cell-link" :href="video.url" target="_blank" rel="noopener noreferrer">
                     {{ video.url }}
                   </a>
                 </td>
                 <td data-label="导入时间" class="cell-date">{{ formatDate(video.createdAt) }}</td>
-                <td data-label="操作" class="cell-actions">
-                  <button
-                    class="btn btn--danger"
-                    type="button"
-                    :disabled="busyId !== null"
-                    @click="removeVideo(video.id, videoLabel(video.author, video.title))"
-                  >
-                    {{ busyId === video.id ? '删除中…' : '删除' }}
-                  </button>
-                </td>
               </tr>
             </tbody>
           </table>
@@ -304,6 +723,15 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
+
+    <Teleport to="body">
+      <DouyinVideoDrawer
+        v-if="drawerVideo"
+        :video="drawerVideo"
+        :window="douyinStore.window"
+        @close="drawerVideo = null"
+      />
+    </Teleport>
   </div>
 </template>
 
@@ -313,6 +741,146 @@ onBeforeUnmount(() => {
   display: flex;
   gap: 0.5rem;
 }
+
+/* ---------- 工具栏 ---------- */
+.toolbar {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+}
+
+.toolbar__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.toolbar__search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.toolbar__input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--text);
+  background: var(--field-bg);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  outline: none;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.toolbar__input::placeholder {
+  color: var(--text-subtle);
+}
+
+.toolbar__input:hover {
+  background: var(--field-bg-hover);
+}
+
+.toolbar__input:focus {
+  background: var(--field-bg-focus);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-ring);
+}
+
+.toolbar__group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toolbar__label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  white-space: nowrap;
+}
+
+.toolbar__select {
+  padding: 0.4375rem 1.75rem 0.4375rem 0.625rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  color: var(--text);
+  background-color: var(--field-bg);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  outline: none;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.toolbar__select:hover {
+  background-color: var(--field-bg-hover);
+}
+
+.toolbar__select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-ring);
+}
+
+.btn--order {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.toolbar__hint {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  color: var(--text-subtle);
+}
+
+.segmented {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--field-bg);
+  border-radius: var(--radius-pill);
+}
+
+.segmented__item {
+  padding: 0.3125rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color 0.16s ease,
+    background 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.segmented__item:hover {
+  color: var(--text);
+}
+
+.segmented__item--active {
+  color: var(--text);
+  background: var(--surface-solid);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
 
 /* ---------- 提示条 ---------- */
 .notice {
@@ -520,6 +1088,10 @@ onBeforeUnmount(() => {
 }
 
 /* ---------- 表格 ---------- */
+.table-wrap {
+  overflow-x: auto;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -539,8 +1111,81 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
-.table__actions-head {
+.table__num {
   text-align: right;
+}
+
+.table__menu-head,
+.cell-menu {
+  width: 1%;
+  padding-right: 0.25rem;
+  padding-left: 1rem;
+  white-space: nowrap;
+}
+
+.menu-trigger {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    color 0.16s ease,
+    background 0.16s ease;
+}
+
+.menu-trigger:hover {
+  color: var(--text);
+  background: var(--field-bg-hover);
+}
+
+.menu-trigger svg {
+  width: 18px;
+  height: 18px;
+}
+
+.menu {
+  position: fixed;
+  z-index: 60;
+  display: grid;
+  min-width: 160px;
+  padding: 0.25rem;
+  background: var(--surface-solid);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
+  animation: fade-in 0.16s ease both;
+}
+
+.menu__item {
+  padding: 0.5rem 0.625rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  text-align: left;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.16s ease;
+}
+
+.menu__item:hover:not(:disabled) {
+  background: var(--field-bg-hover);
+}
+
+.menu__item:disabled {
+  color: var(--text-subtle);
+  cursor: not-allowed;
+}
+
+.menu__item--danger {
+  color: var(--danger);
 }
 
 .table tbody tr {
@@ -571,6 +1216,23 @@ onBeforeUnmount(() => {
   letter-spacing: -0.01em;
 }
 
+.cell-title--button {
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  text-align: left;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.16s ease;
+}
+
+.cell-title--button:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
 .cell-author {
   color: var(--text-muted);
   white-space: nowrap;
@@ -590,14 +1252,26 @@ onBeforeUnmount(() => {
   text-decoration: underline;
 }
 
+.cell-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cell-growth {
+  font-weight: 600;
+  color: var(--success);
+}
+
 .cell-date {
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.cell-actions {
-  text-align: right;
+.cell-error {
+  color: var(--danger);
+  cursor: help;
 }
 
 /* ---------- 响应式：表格 → 卡片 ---------- */
@@ -609,6 +1283,24 @@ onBeforeUnmount(() => {
   .page__actions {
     flex-wrap: wrap;
     justify-content: flex-end;
+  }
+
+  .toolbar__row {
+    align-items: stretch;
+  }
+
+  .toolbar__search,
+  .toolbar__group {
+    flex: 1 1 100%;
+  }
+
+  .toolbar__hint {
+    margin-left: 0;
+  }
+
+  .segmented {
+    flex-wrap: wrap;
+    border-radius: var(--radius-md);
   }
 
   .pager {
@@ -662,9 +1354,14 @@ onBeforeUnmount(() => {
     max-width: 60vw;
   }
 
-  .cell-actions {
-    justify-content: flex-end;
-    padding-top: 0.75rem;
+  .cell-menu {
+    justify-content: flex-start;
+    padding-top: 0.5rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .cell-menu::before {
+    display: none;
   }
 }
 </style>

@@ -20,7 +20,10 @@ def create_app(config_name='development'):
     # 注册蓝图
     from backend.app.api import api_bp
     app.register_blueprint(api_bp, url_prefix='/api')
-    
+
+    # 确保所有模型都已导入，create_all 才能建表
+    from backend.app import models  # noqa: F401
+
     # 创建数据库表
     with app.app_context():
         db.create_all()

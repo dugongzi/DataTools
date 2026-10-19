@@ -127,9 +127,14 @@ function handleLogout() {
 
 /* ---------- sidebar ---------- */
 .sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  height: 100vh;
+  overflow-y: auto;
   padding: 1.5rem 1rem;
   background: var(--surface);
   border-right: 1px solid var(--surface-border);
@@ -249,6 +254,9 @@ function handleLogout() {
     position: sticky;
     top: 0;
     z-index: 2;
+    align-self: stretch;
+    height: auto;
+    overflow-y: visible;
     flex-direction: row;
     align-items: center;
     gap: 1rem;

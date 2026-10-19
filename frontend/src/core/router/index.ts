@@ -64,11 +64,11 @@ const router = createRouter({
         {
           path: 'settings',
           name: 'settings',
-          component: () => import('@/common/views/ComingSoonView.vue'),
+          component: () => import('@/common/views/SettingsView.vue'),
           meta: {
             requiresAuth: true,
             title: '设置',
-            lead: '配置工作区、通知与集成。'
+            lead: '配置抖音监控的采集时机、并发与重试策略。'
           }
         }
       ]
