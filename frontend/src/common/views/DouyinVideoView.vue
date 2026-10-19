@@ -100,7 +100,7 @@ const collectingIds = ref<number[]>([])
 const selectedVideoIds = ref<number[]>([])
 let collectTimer: ReturnType<typeof setInterval> | undefined
 let collectClearTimer: ReturnType<typeof setTimeout> | undefined
-const COLLECT_POLL_TIMEOUT_MS = 10 * 60 * 1000
+const COLLECT_POLL_TIMEOUT_MS = 30 * 60 * 1000
 
 const historyOpen = ref(false)
 const retrying = ref(false)

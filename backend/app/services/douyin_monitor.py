@@ -1,4 +1,5 @@
 """抖音监控编排服务：配置读写、定时判断、批量采集与快照落库。"""
+import logging
 import threading
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
@@ -16,6 +17,8 @@ from backend.app.models.douyin_monitor import (
 )
 from backend.app.models.douyin_video import DouyinVideo
 from backend.app.services.douyin_fetcher import DouyinFetcher
+
+logger = logging.getLogger('douyin.monitor')
 
 TIMEZONE = ZoneInfo('Asia/Shanghai')
 LOCK_NAME = 'douyin_monitor'
@@ -226,10 +229,12 @@ def run_cycle(app, run_id: int, video_ids=None):
                 text('SELECT GET_LOCK(:name, 0)'), {'name': LOCK_NAME}
             ).scalar() == 1
             if not locked:
+                logger.warning('run=%s 未获取到采集锁，跳过本轮', run_id)
                 _finish_run(run_id, 'failed', 0, 0, '已有采集任务在运行')
                 return
             _execute(run_id, video_ids)
         except Exception as exc:  # noqa: BLE001
+            logger.exception('run=%s 采集异常', run_id)
             db.session.rollback()
             _finish_run(run_id, 'failed', 0, 0, str(exc)[:255])
         finally:
@@ -277,18 +282,12 @@ def _execute(run_id: int, video_ids=None):
         latest = latest_map.get(video.id)
         inputs.append(latest.aweme_id if latest and latest.aweme_id else video.url)
 
-    fetcher = DouyinFetcher(
-        concurrency=cfg.concurrency,
-        retry_times=cfg.retry_times,
-        retry_delay_seconds=cfg.retry_delay_seconds,
-    )
-    results = fetcher.fetch_video_details(inputs, concurrency=cfg.concurrency)
-
     success = 0
     failed = 0
-    now = datetime.utcnow()
 
-    for index, result in enumerate(results):
+    def save_result(index: int, result: dict):
+        """每抓完一条就写库，让前端进度实时变化。"""
+        nonlocal success, failed
         video = videos[index]
         latest = latest_map.get(video.id)
         if latest is None:
@@ -296,6 +295,7 @@ def _execute(run_id: int, video_ids=None):
             db.session.add(latest)
             latest_map[video.id] = latest
 
+        now = datetime.utcnow()
         if result.get('error'):
             failed += 1
             message = str(result['error'])[:255]
@@ -334,10 +334,17 @@ def _execute(run_id: int, video_ids=None):
             if not video.title and result.get('desc'):
                 video.title = result['desc'][:255]
 
-        # 每条都提交，保证少量视频的采集也能看到进度变化
         run.success_count = success
         run.failed_count = failed
         db.session.commit()
+
+    fetcher = DouyinFetcher(
+        concurrency=cfg.concurrency,
+        retry_times=cfg.retry_times,
+        retry_delay_seconds=cfg.retry_delay_seconds,
+    )
+    logger.info('run=%s 开始采集，共 %s 条，并发=%s', run_id, len(videos), cfg.concurrency)
+    fetcher.fetch_video_details(inputs, concurrency=cfg.concurrency, on_result=save_result)
 
     status = 'success'
     if failed and not success:
@@ -345,6 +352,7 @@ def _execute(run_id: int, video_ids=None):
     elif failed:
         status = 'partial'
 
+    logger.info('run=%s 采集结束，成功 %s 条，失败 %s 条', run_id, success, failed)
     _finish_run(run_id, status, success, failed, f'成功 {success} 条，失败 {failed} 条')
 
 
